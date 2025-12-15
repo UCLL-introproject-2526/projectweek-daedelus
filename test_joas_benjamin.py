@@ -19,16 +19,29 @@ def render_frame(surface, coord):
 def clear_surface(surface):
     surface.fill(whipe)
 # Initialize Pygame
+def flying():
+    keys =pygame.key.get_pressed()
+    if keys[pygame.K_d]:
+        sprite_coord[0] += 1
+    if keys[pygame.K_a]:
+        sprite_coord[0] -= 1
+    if keys[pygame.K_w]:
+        sprite_coord[1] -= 1
+    if keys[pygame.K_s]:
+        sprite_coord[1] += 1
 pygame.init()
 
 run = True
 while run:
     render_frame(surface, coord)
+    surface.blit(icarus, sprite_coord)
+    flying()
     clear_surface(surface)
     surface.blit(icarus, sprite_coord)
-    if(pygame.key.get_focused('d'))
+    
+        
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
+            if event.type == pygame.QUIT:
+                run = False
 
 pygame.quit()
