@@ -14,5 +14,9 @@ while run:
             run = False
 
 pygame.quit()
+<<<<<<< Updated upstream
 GGGGezedzdz
 kln
+=======
+GGGG
+>>>>>>> Stashed changes
