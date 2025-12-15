@@ -15,3 +15,4 @@ while run:
 
 pygame.quit()
 GGGGezedzdz
+kln
