@@ -1,33 +1,59 @@
 import pygame
-from pygame.display import *
 
-
-
-screen_size = (1024, 768)
-
-surface = set_mode(screen_size)
-
-def render_frame(surface):
-    circle = pygame.draw.circle(surface, (255,255,255), (500,370) , 12 )
-    flip()
-render_frame(surface)
-    
-# Initialize Pygame
 pygame.init()
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 500
+screen = pygame.display.set_mode((WINDOW_WIDTH,WINDOW_HEIGHT))
+pygame.display.set_caption('bang bang')
+clock = pygame.time.Clock()
+running = True
 
-run = True
-while run:
+dt = 0
+#player_pos = pygame.Vector2(screen.get_width() /2, screen.get_height() /2)
+
+downloaded_font = pygame.font.Font('Cinzel-VariableFont_wght.ttf', 30)
+downloaded_font = downloaded_font.render('The sea waits below. The sun burns above.', True, (212, 175, 55), 'silver')
+downloaded_font_rect = downloaded_font.get_rect()
+downloaded_font_rect.center = (WINDOW_WIDTH/2, 100)
+icarus = pygame.image.load('icarus.png')
+icarus_rect = icarus.get_rect()
+
+icarus_rect.midleft = (0, WINDOW_HEIGHT / 2)
+
+while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            run = False
+            running = False
 
-pygame.quit()
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-GGGGezedzdz
-kln
-=======
-GGGG
->>>>>>> Stashed changes
-=======
->>>>>>> ba40145498c0cd1aba807d9ed0b71794d6a4f2e1
+    screen.fill('silver')
+
+    #pygame.draw.circle(screen, 'blue', player_pos, 40)
+
+    screen.blit(downloaded_font, downloaded_font_rect)
+
+    screen.blit(icarus, icarus_rect)
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_UP] and icarus_rect.y > 0:
+        icarus_rect.y -= 300 * dt
+
+    if keys[pygame.K_DOWN] and  icarus_rect.y < WINDOW_HEIGHT - 77:
+        icarus_rect.y += 300 * dt
+
+    if keys[pygame.K_LEFT] and icarus_rect.x > 0:
+        icarus_rect.x -= 300 * dt
+
+    if keys[pygame.K_RIGHT] and icarus_rect.x < WINDOW_WIDTH - 77:
+        icarus_rect.x += 300 * dt
+
+
+    '''if pygame.mouse.get_pressed()[0]:
+        if event.type == pygame.MOUSEMOTION:
+            pos = pygame.mouse.get_pos()
+            player_pos.x = pos[0]
+            player_pos.y = pos[1]
+    '''
+
+    pygame.display.flip()
+
+    dt = clock.tick(60) / 1000
