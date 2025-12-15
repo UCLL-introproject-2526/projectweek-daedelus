@@ -19,4 +19,4 @@ while run:
 
 pygame.quit()
  #zerghgfezsegfdes
- GGGG
+ GGGG zoiejrfsùj
