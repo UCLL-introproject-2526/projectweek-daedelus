@@ -24,13 +24,13 @@ def keys():
     if keys[pygame.K_UP] and icarus_rect.y > 0:
         icarus_rect.y -= 300 * dt
 
-    if keys[pygame.K_DOWN] and  icarus_rect.y < WINDOW_HEIGHT - 77:
+    if keys[pygame.K_DOWN] and  icarus_rect.y < WINDOW_HEIGHT - 50:
         icarus_rect.y += 300 * dt
 
     if keys[pygame.K_LEFT] and icarus_rect.x > 0:
         icarus_rect.x -= 300 * dt
 
-    if keys[pygame.K_RIGHT] and icarus_rect.x < WINDOW_WIDTH - 77:
+    if keys[pygame.K_RIGHT] and icarus_rect.x < WINDOW_WIDTH - 75:
         icarus_rect.x += 300 * dt
 def load_level():
     screen.fill('silver')
