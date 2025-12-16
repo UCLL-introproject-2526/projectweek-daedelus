@@ -99,7 +99,7 @@ heart_timer = 0
 
 def spawn_heart():
     heart_rect = heart_image.get_rect(
-        midleft=(WINDOW_WIDTH + 100, randrange(100, WINDOW_HEIGHT - 50))
+        midleft=(WINDOW_WIDTH + 100, randrange(100, WINDOW_HEIGHT - UI_BAR))
     )
     hearts.append(heart_rect)
 
