@@ -2,6 +2,9 @@ import pygame
 
 pygame.init()
 
+#Music
+pygame.mixer.init()
+
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 
@@ -9,6 +12,9 @@ WINDOW_HEIGHT = 500
 BG_SPEED = 300
 WAVE_SPEED = 200
 
+#Music 
+pygame.mixer.music.load("music_testmap/2.ogg")
+pygame.mixer.music.play(-1)
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('bang bang')
