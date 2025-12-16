@@ -73,6 +73,40 @@ icarus = pygame.image.load("Sprites/icarus_sprite.png").convert_alpha()
 icarus_rect = icarus.get_rect(midleft=(80, WINDOW_HEIGHT // 2))
 icarus_mask = pygame.mask.from_surface(icarus)
 
+class Button:
+    def __init__(self, text, x, y, w, h):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.text = text
+
+    def draw(self):
+        mouse_pos = pygame.mouse.get_pos()
+        hovered = self.rect.collidepoint(mouse_pos)
+
+        color = (200, 200, 200) if hovered else (140, 140, 140)
+
+        pygame.draw.rect(screen, color, self.rect, border_radius=8)
+        pygame.draw.rect(screen, (0, 0, 0), self.rect, 2, border_radius=8)
+
+        text_surf = font.render(self.text, True, (0, 0, 0))
+        screen.blit(text_surf, text_surf.get_rect(center=self.rect.center))
+
+    def clicked(self, event):
+        return (
+            event.type == pygame.MOUSEBUTTONDOWN
+            and event.button == 1
+            and self.rect.collidepoint(event.pos)
+        )
+
+start_button = Button(
+    "START",
+    screen.get_width() // 2 - 100,
+    300,
+    200,
+    60
+)
+
+
+
 # ========================
 # TEKST
 # ========================
@@ -285,10 +319,36 @@ def draw_game_over():
     )
     screen.blit(restart_text, restart_text.get_rect(center=(WINDOW_WIDTH // 2, 360)))
 
+class Button:
+    def __init__(self, text, x, y, w, h):
+        self.rect = pygame.Rect(x, y, w, h)
+        self.text = text
+
+    def draw(self):
+        mouse_pos = pygame.mouse.get_pos()
+        color = (180, 180, 180) if self.rect.collidepoint(mouse_pos) else (120, 120, 120)
+
+        pygame.draw.rect(screen, color, self.rect, border_radius=8)
+        pygame.draw.rect(screen, (0, 0, 0), self.rect, 2, border_radius=8)
+
+        txt = font.render(self.text, True, (0, 0, 0))
+        screen.blit(
+            txt,
+            txt.get_rect(center=self.rect.center)
+        )
+
+    def clicked(self, event):
+        return (
+            event.type == pygame.MOUSEBUTTONDOWN
+            and event.button == 1
+            and self.rect.collidepoint(event.pos)
+        )
+
 
 # ========================
 # MAIN LOOP
 # ========================
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -315,6 +375,20 @@ while running:
         pygame.display.flip()
         dt = clock.tick(60) / 1000
         continue
+    
+    if state == START:
+      if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+        reset_game()
+        state = PLAYING
+    
+    if state == START:
+      screen.fill((30, 30, 60))
+      draw_text("FLAPPY GAME", big_font, (255, 215, 0), WIDTH // 2, 180)
+      start_button.draw()
+      pygame.display.flip()
+      continue
+
+
 
     handle_keys()
 
