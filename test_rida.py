@@ -7,7 +7,7 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 
 
-BG_SPEED = 300
+BG_SPEED = 250
 
 pygame.mixer.music.load("music_testmap/2.ogg")
 pygame.mixer.music.play(-1)
