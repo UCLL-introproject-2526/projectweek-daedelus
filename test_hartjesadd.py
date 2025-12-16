@@ -31,11 +31,21 @@ BIRD_ANIM_SPEED = 0.15
 # SETUP
 # ========================
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pygame.display.set_caption('bang bang')
+pygame.display.set_caption('Flight of Icarus')
 clock = pygame.time.Clock()
 running = True
 dt = 0
 score = 0
+
+# ========================
+# GAME STATES
+# ========================
+START = 0
+PLAYING = 1
+GAME_OVER = 2
+
+state = START
+record = 0
 
 # ========================
 # MUSIC
@@ -73,6 +83,15 @@ text_surface = font.render(
     (212, 175, 55)
 )
 text_rect = text_surface.get_rect(center=(WINDOW_WIDTH / 2, 100))
+
+# ========================
+# TEKST 2
+# ========================
+title_text = font.render("BANG BANG", True, (212, 175, 55))
+start_text = font.render("Druk op SPACE om te starten", True, (255, 255, 255))
+
+game_over_text = font.render("GAME OVER", True, (200, 50, 50))
+restart_text = font.render("SPACE = opnieuw spelen", True, (255, 255, 255))
 
 # ========================
 # BACKGROUND VARS
@@ -268,11 +287,17 @@ class PillarPair:
             or self.bottom_hitbox.colliderect(player_rect)
         )
 def reset_game():
-    global score, BG_SPEED, pillar_timer
+    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer
+    bird_spawn_timer = 0
+    bird_anim_timer = 0
+    bird_frame_index = 0
+    heart_timer = 0
     score = 0
     BG_SPEED = 300
     pillar_timer = 0
     pillars.clear()
+    hearts.clear() #toegevoegd
+    birds.clear() #toegevoegd
     icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
 
 def spawn_bird():
@@ -282,7 +307,7 @@ def spawn_bird():
 
 
 def update_birds():
-    global lives, hit_timer
+    global lives, hit_timer, state, record
 
     for bird in birds[:]:
         bird.x -= BIRD_SPEED * dt
@@ -302,7 +327,40 @@ def update_birds():
                 hit_timer = HIT_COOLDOWN
                 birds.remove(bird)
 
+                # 🛑 Check voor game over
+                if lives <= 0:
+                    game_over()
+
         screen.blit(bird_frames[bird_frame_index], bird)
+
+
+def draw_start():
+    infinite_background()
+    infinite_waves()
+    screen.blit(title_text, title_text.get_rect(center=(WINDOW_WIDTH // 2, 220)))
+    screen.blit(start_text, start_text.get_rect(center=(WINDOW_WIDTH // 2, 270)))
+
+
+def draw_game_over():
+    infinite_background()
+    infinite_waves()
+    screen.blit(game_over_text, game_over_text.get_rect(center=(WINDOW_WIDTH // 2, 200)))
+    screen.blit(
+        font.render(f"Score: {int(score)}", True, (255, 255, 255)),
+        (WINDOW_WIDTH // 2 - 80, 260),
+    )
+    screen.blit(
+        font.render(f"Record: {record}", True, (255, 215, 0)),
+        (WINDOW_WIDTH // 2 - 80, 300),
+    )
+    screen.blit(restart_text, restart_text.get_rect(center=(WINDOW_WIDTH // 2, 360)))
+
+def game_over():
+    global state, record
+    if score > record:
+        record = int(score)
+    state = GAME_OVER
+
 
 # ========================
 # MAIN LOOP
@@ -311,6 +369,28 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+        if state == START and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            reset_game()
+            lives = MAX_LIVES
+            state = PLAYING
+
+        if state == GAME_OVER and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            reset_game()
+            lives = MAX_LIVES
+            state = PLAYING
+
+    if state == START:
+        draw_start()
+        pygame.display.flip()
+        dt = clock.tick(60) / 1000
+        continue
+
+    if state == GAME_OVER:
+        draw_game_over()
+        pygame.display.flip()
+        dt = clock.tick(60) / 1000
+        continue
 
     handle_keys()
 
@@ -324,8 +404,13 @@ while running:
     for pillar in pillars:
         pillar.update()
 
-        if pillar.collides(icarus_rect):
-            reset_game()
+        if pillar.collides(icarus_rect) and hit_timer <= 0:
+            lives -= 1
+            hit_timer = HIT_COOLDOWN
+
+            if lives <= 0:
+                if score > record:
+                    game_over()
             break
 
         if not pillar.passed and pillar.x + PILLAR_WIDTH < icarus_rect.x:
@@ -357,7 +442,10 @@ while running:
         hit_timer = HIT_COOLDOWN
 
         if lives <= 0:
-            running = False
+            # update record als nodig
+            if score > record:
+                game_over()
+
 
     score += dt * 20
 
