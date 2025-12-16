@@ -1,12 +1,15 @@
 import pygame
 
 pygame.init()
+pygame.mixer.init()
 
 
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
-BG_SPEED = 600
+BG_SPEED = 250
 
+pygame.mixer.music.load("music_testmap/2.ogg")
+pygame.mixer.music.play(-1)
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("bang bang")
@@ -83,6 +86,7 @@ while running:
     score += dt*20
 
     load_level()
+    BG_SPEED *= 1.0002
 
     pygame.display.flip()
     dt = clock.tick(60) / 1000
