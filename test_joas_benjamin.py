@@ -4,8 +4,7 @@ pygame.init()
 
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
-
-
+UI_BAR = 50
 BG_SPEED = 300
 WAVE_SPEED = 200
 
@@ -17,9 +16,9 @@ running = True
 dt = 0
 score = 0
 score_font = pygame.font.Font("fonts/Cinzel-VariableFont_wght.ttf", 24)
-
+Ui = pygame.image.load("Sprites/UI.png").convert()
 background = pygame.image.load("Sprites/background.png").convert()
-background = pygame.transform.scale(background, (WINDOW_WIDTH, WINDOW_HEIGHT))
+background = pygame.transform.scale(background, (WINDOW_WIDTH, WINDOW_HEIGHT+UI_BAR))
 bg_x = 0 
 waves = pygame.image.load("Sprites/waves.png").convert()
 waves = pygame.transform.scale(waves, (WINDOW_WIDTH, WINDOW_HEIGHT/ 4))
@@ -42,7 +41,7 @@ def handle_keys():
     keys = pygame.key.get_pressed()
     speed = 300 * dt
 
-    if keys[pygame.K_UP] and icarus_rect.top > 0:
+    if keys[pygame.K_UP] and icarus_rect.top > UI_BAR:
         icarus_rect.y -= speed
     if keys[pygame.K_DOWN] and icarus_rect.bottom < WINDOW_HEIGHT:
         icarus_rect.y += speed
@@ -53,8 +52,6 @@ def handle_keys():
 
 def infinite_background():
     global bg_x  
-
-
     bg_x -= BG_SPEED * dt
     if bg_x <= -WINDOW_WIDTH:
         bg_x = 0
@@ -77,8 +74,11 @@ def load_level():
     infinite_waves()
     screen.blit(text_surface, text_rect)
     screen.blit(icarus, icarus_rect)
-    score_text = score_font.render(f"Score: {int(score)}", True, (0, 0, 0))
-    screen.blit(score_text, (20, 20))
+    screen.blit(Ui, (0, 0))
+    score_text = score_font.render(f"Score: {int(score)}", True, (255, 255, 255)).convert_alpha()
+    score_text_rect = score_text.get_rect(midleft = (0 , UI_BAR/2))
+    screen.blit(score_text, score_text_rect)    
+
 
 while running:
     for event in pygame.event.get():
@@ -87,7 +87,9 @@ while running:
 
     handle_keys()
     load_level()
-    BG_SPEED *= 1.0004
+    if WAVE_SPEED <= 600:
+        BG_SPEED += 0.2
+        WAVE_SPEED += 0.1
     score += dt*20
 
     pygame.display.flip()
