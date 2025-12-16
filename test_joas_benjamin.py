@@ -93,8 +93,10 @@ while running:
 
     handle_keys()
     load_level()
-    BG_SPEED *= 1.0004
-    score += dt*20
+    if WAVE_SPEED <= 600:
+        BG_SPEED += 0.2
+        WAVE_SPEED += 0.1    
+        score += dt*20
 
     pygame.display.flip()
     dt = clock.tick(60) / 1000
