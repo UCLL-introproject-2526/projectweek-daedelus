@@ -59,3 +59,12 @@ while running:
     pygame.display.flip()
 
     dt = clock.tick(60) / 1000
+
+
+    class Background:
+        def __init__(self):
+            self.__set_create_image()
+            
+        def __set_create_image(self):
+            background = pygame.image.load('Sprites/background.png')
+            screen.blit(background)
