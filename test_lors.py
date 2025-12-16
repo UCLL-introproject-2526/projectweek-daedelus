@@ -68,6 +68,25 @@ def load_level():
     screen.blit(text_surface, text_rect)
     screen.blit(icarus, icarus_rect)
 
+class Sound:
+    def __init__(self, file_path, volume=1.0):
+        self.sound = pygame.mixer.Sound(file_path)
+        self.sound.set_volume(volume)
+
+    def play(self, loops=0):
+        self.sound.play(loops=loops)
+
+    def stop(self):
+        self.sound.stop()
+
+hit_sound = Sound("music_testmap/Oof.ogg", volume=0.7)
+
+''' Example: Player gets hit randomly for demonstration
+    if randint(0, 100) < 2:  # 2% chance per frame
+        player_health -= 1
+        print(f"Player hit! Health: {player_health}")
+        hit_sound.play()  # Play the hit sound'''
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
