@@ -11,7 +11,7 @@ WINDOW_HEIGHT = 500
 
 BG_SPEED = 250
 
-pygame.mixer.music.load("music_testmap/2.ogg")
+pygame.mixer.music.load("Sound/Music/2.ogg")
 pygame.mixer.music.play(-1)
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -79,7 +79,7 @@ class Sound:
     def stop(self):
         self.sound.stop()
 
-hit_sound = Sound("music_testmap/Oof.ogg", volume=0.7)
+hit_sound = Sound("Sound/Soundeffect/Oof.ogg", volume=0.7)
 
 ''' Example: Player gets hit randomly for demonstration
     if randint(0, 100) < 2:  # 2% chance per frame

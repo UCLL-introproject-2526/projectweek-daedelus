@@ -11,7 +11,14 @@ UI_BAR = 50
 
 BG_SPEED = 300
 WAVE_SPEED = 200
+<<<<<<< HEAD
 PILLAR_SPEED = 300
+=======
+
+#Music 
+pygame.mixer.music.load("Sound/Music/2.ogg")
+pygame.mixer.music.play(-1)
+>>>>>>> b8984983bb64ed884dcbae5c8ada6c70561820c1
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("bang bang")
@@ -26,7 +33,7 @@ Ui = pygame.image.load("Sprites/UI.png").convert()
 background = pygame.image.load("Sprites/background.png").convert()
 background = pygame.transform.scale(background, (WINDOW_WIDTH, WINDOW_HEIGHT+UI_BAR))
 bg_x = 0 
-waves = pygame.image.load("Sprites/waves.png").convert()
+waves = pygame.image.load("Sprites/waves.png").convert_alpha()
 waves = pygame.transform.scale(waves, (WINDOW_WIDTH, WINDOW_HEIGHT/ 4))
 waves_mask = pygame.mask.from_surface(waves)
 waves_x = 0 
@@ -205,7 +212,7 @@ heart_image = pygame.image.load("Sprites/heart.png").convert_alpha()
 heart_mask = pygame.mask.from_surface(heart_image)
 hearts = []
 heart_speed = 200
-heart_spawn_time = 1
+heart_spawn_time = 0.1
 heart_timer = 0
 
 
