@@ -9,7 +9,7 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 
 
-BG_SPEED = 30
+BG_SPEED = 250
 
 pygame.mixer.music.load("music_testmap/2.ogg")
 pygame.mixer.music.play(-1)
@@ -75,6 +75,7 @@ while running:
 
     handle_keys()
     load_level()
+    BG_SPEED *= 1.0002
 
     pygame.display.flip()
     dt = clock.tick(60) / 1000
