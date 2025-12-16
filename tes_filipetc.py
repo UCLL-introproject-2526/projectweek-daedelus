@@ -19,20 +19,7 @@ icarus = pygame.image.load('Sprites/icarus_sprite.png')
 icarus_rect = icarus.get_rect()
 
 icarus_rect.midleft = (0, WINDOW_HEIGHT / 2)
-
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    screen.fill('silver')
-
-    #pygame.draw.circle(screen, 'blue', player_pos, 40)
-
-    screen.blit(downloaded_font, downloaded_font_rect)
-
-    screen.blit(icarus, icarus_rect)
-
+def keys():
     keys = pygame.key.get_pressed()
     if keys[pygame.K_UP] and icarus_rect.y > 0:
         icarus_rect.y -= 300 * dt
@@ -45,6 +32,21 @@ while running:
 
     if keys[pygame.K_RIGHT] and icarus_rect.x < WINDOW_WIDTH - 77:
         icarus_rect.x += 300 * dt
+def load_level():
+    screen.fill('silver')
+
+    #pygame.draw.circle(screen, 'blue', player_pos, 40)
+
+    screen.blit(downloaded_font, downloaded_font_rect)
+
+    screen.blit(icarus, icarus_rect)
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    load_level()
+    keys()
 
 
     '''if pygame.mouse.get_pressed()[0]:
