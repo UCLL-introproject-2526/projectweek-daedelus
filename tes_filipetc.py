@@ -11,11 +11,11 @@ running = True
 dt = 0
 #player_pos = pygame.Vector2(screen.get_width() /2, screen.get_height() /2)
 
-downloaded_font = pygame.font.Font('Cinzel-VariableFont_wght.ttf', 30)
+downloaded_font = pygame.font.Font('fonts/Cinzel-VariableFont_wght.ttf', 30)
 downloaded_font = downloaded_font.render('The sea waits below. The sun burns above.', True, (212, 175, 55), 'silver')
 downloaded_font_rect = downloaded_font.get_rect()
 downloaded_font_rect.center = (WINDOW_WIDTH/2, 100)
-icarus = pygame.image.load('icarus.png')
+icarus = pygame.image.load('Sprites/icarus_sprite.png')
 icarus_rect = icarus.get_rect()
 
 icarus_rect.midleft = (0, WINDOW_HEIGHT / 2)
