@@ -11,14 +11,7 @@ UI_BAR = 50
 
 BG_SPEED = 300
 WAVE_SPEED = 200
-<<<<<<< HEAD
 PILLAR_SPEED = 300
-=======
-
-#Music 
-pygame.mixer.music.load("Sound/Music/2.ogg")
-pygame.mixer.music.play(-1)
->>>>>>> b8984983bb64ed884dcbae5c8ada6c70561820c1
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption("bang bang")
@@ -26,22 +19,7 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 score = 0
-<<<<<<< HEAD
-=======
-score_font = pygame.font.Font("fonts/Cinzel-VariableFont_wght.ttf", 24)
-Ui = pygame.image.load("Sprites/UI.png").convert()
-background = pygame.image.load("Sprites/background.png").convert()
-background = pygame.transform.scale(background, (WINDOW_WIDTH, WINDOW_HEIGHT+UI_BAR))
-bg_x = 0 
-waves = pygame.image.load("Sprites/waves.png").convert_alpha()
-waves = pygame.transform.scale(waves, (WINDOW_WIDTH, WINDOW_HEIGHT/ 4))
-waves_mask = pygame.mask.from_surface(waves)
-waves_x = 0 
->>>>>>> fc16b972507b81eeb078b639c86e44306548c0b2
 
-# Music
-pygame.mixer.music.load("music_testmap/2.ogg")
-pygame.mixer.music.play(-1)
 
 # Fonts
 score_font = pygame.font.Font("fonts/Cinzel-VariableFont_wght.ttf", 24)
