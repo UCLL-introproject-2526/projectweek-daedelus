@@ -138,6 +138,56 @@ def check_heart_collision():
 
 
 
+heart_image = pygame.image.load('Sprites/heart.png').convert_alpha()
+heart_mask = pygame.mask.from_surface(heart_image)
+
+hearts = []
+
+heart_speed = 200
+heart_spawn_time = 6
+heart_timer = 0
+
+def spawn_heart():
+    heart_rect = heart_image.get_rect(
+        midleft=(WINDOW_WIDTH + 50, randrange(100, WINDOW_HEIGHT - 50))
+    )
+    hearts.append(heart_rect)
+
+def update_hearts():
+    for heart in hearts[:]:
+        heart.x -= heart_speed * dt
+
+        # Verwijder als buiten scherm
+        if heart.right < 0:
+            hearts.remove(heart)
+            continue
+
+        # OFFSET berekenen
+        offset_x = heart.x - icarus_rect.x
+        offset_y = heart.y - icarus_rect.y
+
+        # Pixel-perfect collision
+        if icarus_mask.overlap(heart_mask, (offset_x, offset_y)):
+            hearts.remove(heart)
+            print("Pixel-perfect heart collected!")
+            continue
+
+        screen.blit(heart_image, heart)
+
+
+
+def check_heart_collision():
+    global score  # tijdelijk voorbeeld
+
+    for heart in hearts[:]:
+        if icarus_rect.colliderect(heart):
+            hearts.remove(heart)
+            print("Heart collected!")
+            score += 50  # placeholder
+
+
+
+
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -146,11 +196,14 @@ while running:
     handle_keys()
     load_level()
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     if WAVE_SPEED <= 600:
         BG_SPEED += 0.2
         WAVE_SPEED += 0.1    
         score += dt*20
 =======
+=======
+>>>>>>> Stashed changes
     heart_timer += dt
     if heart_timer >= heart_spawn_time:
         spawn_heart()
