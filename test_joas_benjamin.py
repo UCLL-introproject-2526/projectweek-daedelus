@@ -29,6 +29,7 @@ background = pygame.transform.scale(background, (WINDOW_WIDTH, WINDOW_HEIGHT+UI_
 bg_x = 0 
 waves = pygame.image.load("Sprites/waves.png").convert()
 waves = pygame.transform.scale(waves, (WINDOW_WIDTH, WINDOW_HEIGHT/ 4))
+waves_mask = pygame.mask.from_surface(waves)
 waves_x = 0 
 
 font = pygame.font.Font('fonts/Cinzel-VariableFont_wght.ttf', 30)
@@ -76,6 +77,29 @@ def infinite_waves():
         waves_x = 0
     screen.blit(waves, (waves_x, WINDOW_HEIGHT-100))
     screen.blit(waves, (waves_x + WINDOW_WIDTH, WINDOW_HEIGHT-100))
+
+def check_wave_collision():
+    # Y-positie van de waves (zoals je ze tekent)
+    wave_y = WINDOW_HEIGHT - 100
+
+    # Eerste wave
+    offset_x1 = waves_x - icarus_rect.x
+    offset_y1 = wave_y - icarus_rect.y
+
+    if icarus_mask.overlap(waves_mask, (offset_x1, offset_y1)):
+        print("💥 Icarus raakt de zee!")
+        return True
+
+    # Tweede wave (naadloze herhaling)
+    offset_x2 = (waves_x + WINDOW_WIDTH) - icarus_rect.x
+    offset_y2 = wave_y - icarus_rect.y
+
+    if icarus_mask.overlap(waves_mask, (offset_x2, offset_y2)):
+        print("💥 Icarus raakt de zee!")
+        return True
+
+    return False
+
     
 def load_level():
     infinite_background()
@@ -94,12 +118,12 @@ heart_mask = pygame.mask.from_surface(heart_image)
 hearts = []
 
 heart_speed = 200
-heart_spawn_time = 6
+heart_spawn_time = 1
 heart_timer = 0
 
 def spawn_heart():
     heart_rect = heart_image.get_rect(
-        midleft=(WINDOW_WIDTH + 100, randrange(100, WINDOW_HEIGHT - UI_BAR))
+        midleft=(WINDOW_WIDTH + 50, randrange(50, WINDOW_HEIGHT - 200))
     )
     hearts.append(heart_rect)
 
@@ -145,6 +169,10 @@ while running:
 
     handle_keys()
     load_level()
+    if check_wave_collision():
+        print("Pixel-perfect collision met waves!")
+    # hier later: leven -= 1, respawn, game over, etc.
+
     if WAVE_SPEED <= 600:
         BG_SPEED += 0.002
         WAVE_SPEED += 0.1    
