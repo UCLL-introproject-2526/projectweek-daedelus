@@ -97,47 +97,9 @@ def infinite_waves():
     waves_x -= WAVE_SPEED * dt
     if waves_x <= -WINDOW_WIDTH:
         waves_x = 0
-<<<<<<< HEAD
     y = WINDOW_HEIGHT - waves.get_height()
     screen.blit(waves, (waves_x, y))
     screen.blit(waves, (waves_x + WINDOW_WIDTH, y))
-=======
-    screen.blit(waves, (waves_x, WINDOW_HEIGHT-100))
-    screen.blit(waves, (waves_x + WINDOW_WIDTH, WINDOW_HEIGHT-100))
-
-def check_wave_collision():
-    # Y-positie van de waves (zoals je ze tekent)
-    wave_y = WINDOW_HEIGHT - 100
-
-    # Eerste wave
-    offset_x1 = waves_x - icarus_rect.x
-    offset_y1 = wave_y - icarus_rect.y
-
-    if icarus_mask.overlap(waves_mask, (offset_x1, offset_y1)):
-        print("💥 Icarus raakt de zee!")
-        return True
-
-    # Tweede wave (naadloze herhaling)
-    offset_x2 = (waves_x + WINDOW_WIDTH) - icarus_rect.x
-    offset_y2 = wave_y - icarus_rect.y
-
-    if icarus_mask.overlap(waves_mask, (offset_x2, offset_y2)):
-        print("💥 Icarus raakt de zee!")
-        return True
-
-    return False
-
-    
-def load_level():
-    infinite_background()
-    infinite_waves()
-    screen.blit(text_surface, text_rect)
-    screen.blit(icarus, icarus_rect)
-    screen.blit(Ui, (0, 0))
-    score_text = score_font.render(f"Score: {int(score)}", True, (255, 255, 255)).convert_alpha()
-    score_text_rect = score_text.get_rect(midleft = (0 , UI_BAR/2))
-    screen.blit(score_text, score_text_rect)    
->>>>>>> fc16b972507b81eeb078b639c86e44306548c0b2
 
 
 class PillarPair:
@@ -196,11 +158,7 @@ heart_timer = 0
 
 def spawn_heart():
     heart_rect = heart_image.get_rect(
-<<<<<<< HEAD
         midleft=(WINDOW_WIDTH + 100, randrange(UI_BAR + 60, WINDOW_HEIGHT - 60))
-=======
-        midleft=(WINDOW_WIDTH + 50, randrange(50, WINDOW_HEIGHT - 200))
->>>>>>> fc16b972507b81eeb078b639c86e44306548c0b2
     )
     hearts.append(heart_rect)
 
@@ -245,24 +203,12 @@ while running:
 
     dt = clock.tick(60) / 1000
     handle_keys()
-<<<<<<< HEAD
 
     pillar_timer += dt
     if pillar_timer >= max(1.0, 1.8 - score * 0.01):
         gap = max(95, 180 - score * 0.15)
         pillars.append(PillarPair(WINDOW_WIDTH + 100, gap))
         pillar_timer = 0
-=======
-    load_level()
-    if check_wave_collision():
-        print("Pixel-perfect collision met waves!")
-    # hier later: leven -= 1, respawn, game over, etc.
-
-    if WAVE_SPEED <= 600:
-        BG_SPEED += 0.002
-        WAVE_SPEED += 0.1    
-    score += dt*20
->>>>>>> fc16b972507b81eeb078b639c86e44306548c0b2
 
     heart_timer += dt
     if heart_timer >= heart_spawn_time:
