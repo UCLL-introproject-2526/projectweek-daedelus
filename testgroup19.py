@@ -68,8 +68,8 @@ icarus_mask = pygame.mask.from_surface(icarus)
 # ========================
 bird_frames = []
 for img in [
-    "Sprites/game158.png",
-    "Sprites/Schermafbeelding 2025-12-16 141211game.png",
+    "Sprites/bird1.png",
+    "Sprites/bird2.png",
 ]:
     image = pygame.image.load(img).convert_alpha()
     image = pygame.transform.scale(
