@@ -21,7 +21,7 @@ dt = 0
 score = 0
 
 # Music
-pygame.mixer.music.load(r"projectweek-daedelus\Sound\Music\2.ogg")
+pygame.mixer.music.load("Sound/Music/2.ogg")
 pygame.mixer.music.play(-1)
 
 # Fonts

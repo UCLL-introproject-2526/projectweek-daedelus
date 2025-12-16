@@ -1,4 +1,5 @@
 import pygame
+import random
 from random import randrange
 
 pygame.init()
@@ -13,6 +14,7 @@ UI_BAR = 50
 
 BG_SPEED = 300
 WAVE_SPEED = 200
+PILLAR_SPEED = 300
 
 MAX_LIVES = 3
 lives = 3
@@ -80,6 +82,15 @@ hearts = []
 heart_speed = 200
 heart_spawn_time = 2.5
 heart_timer = 0
+
+# Pillars
+pillar_img = pygame.image.load("Sprites/zuilen.png").convert_alpha()
+pillar_img = pygame.transform.scale(pillar_img, (70, 450))
+pillar_img_flipped = pygame.transform.flip(pillar_img, False, True)
+PILLAR_WIDTH = pillar_img.get_width()
+
+pillars = []
+pillar_timer = 0
 
 # ========================
 # FUNCTIES
@@ -165,13 +176,16 @@ def update_hearts():
 
 def draw_lives():
     for i in range(lives):
-        screen.blit(heart_image, (WINDOW_WIDTH - 40 * (i + 1), 10))
+        screen.blit(heart_image, (WINDOW_WIDTH - 50 * (i + 1), 0))
 
 
 def load_level():
     infinite_background()
     infinite_waves()
     screen.blit(text_surface, text_rect)
+
+    for pillar in pillars:
+        pillar.draw()
 
     # knipperen tijdens invincibility
     if hit_timer <= 0 or int(hit_timer * 10) % 2 == 0:
@@ -184,6 +198,57 @@ def load_level():
 
     draw_lives()
 
+class PillarPair:
+    def __init__(self, x, gap_height):
+        self.x = x
+        self.gap_y = random.randint(UI_BAR + 80, WINDOW_HEIGHT - 160)
+        self.passed = False
+
+        self.top_rect = pillar_img.get_rect(bottomleft=(x, self.gap_y))
+        self.bottom_rect = pillar_img.get_rect(topleft=(x, self.gap_y + gap_height))
+
+        self.SIDE_MARGIN = 18
+        self.STONE_TOP = 40
+        self.STONE_BOTTOM = 40
+
+        self.top_hitbox = pygame.Rect(
+            self.top_rect.x + self.SIDE_MARGIN,
+            self.top_rect.y + self.STONE_TOP,
+            self.top_rect.width - self.SIDE_MARGIN * 2,
+            self.top_rect.height - self.STONE_TOP - self.STONE_BOTTOM
+        )
+
+        self.bottom_hitbox = pygame.Rect(
+            self.bottom_rect.x + self.SIDE_MARGIN,
+            self.bottom_rect.y + self.STONE_TOP,
+            self.bottom_rect.width - self.SIDE_MARGIN * 2,
+            self.bottom_rect.height - self.STONE_TOP - self.STONE_BOTTOM
+        )
+
+    def update(self):
+        self.x -= PILLAR_SPEED * dt
+        self.top_rect.x = self.x
+        self.bottom_rect.x = self.x
+        self.top_hitbox.x = self.x + self.SIDE_MARGIN
+        self.bottom_hitbox.x = self.x + self.SIDE_MARGIN
+
+    def draw(self):
+        screen.blit(pillar_img_flipped, self.top_rect)
+        screen.blit(pillar_img, self.bottom_rect)
+
+    def collides(self, player_rect):
+        return (
+            self.top_hitbox.colliderect(player_rect)
+            or self.bottom_hitbox.colliderect(player_rect)
+        )
+def reset_game():
+    global score, BG_SPEED, pillar_timer
+    score = 0
+    BG_SPEED = 300
+    pillar_timer = 0
+    pillars.clear()
+    icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
+
 # ========================
 # MAIN LOOP
 # ========================
@@ -193,8 +258,29 @@ while running:
             running = False
 
     handle_keys()
-    load_level()
 
+    pillar_timer += dt
+    if pillar_timer >= max(1.0, 1.8 - score * 0.01):
+        gap = max(95, 180 - score * 0.15)
+        pillars.append(PillarPair(WINDOW_WIDTH + 100, gap))
+        pillar_timer = 0
+
+    # ⬇️ ELKE FRAME
+    for pillar in pillars:
+        pillar.update()
+
+        if pillar.collides(icarus_rect):
+            reset_game()
+            break
+
+        if not pillar.passed and pillar.x + PILLAR_WIDTH < icarus_rect.x:
+            pillar.passed = True
+            score += 10
+
+
+    pillars[:] = [p for p in pillars if p.x > -PILLAR_WIDTH]
+
+    load_level()
     # hit cooldown
     if hit_timer > 0:
         hit_timer -= dt
