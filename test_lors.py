@@ -18,6 +18,8 @@ pygame.mixer.init()
 pygame.mixer.music.load("music_testmap/2.ogg")
 pygame.mixer.music.play(-1)
 
+background = pygame.image.load("Sprites/background.png").convert()
+background = pygame.transform.scale(background, (1024, 768))
 
 run = True
 while run:
@@ -28,7 +30,10 @@ while run:
         if event.type == pygame.KEYDOWN:
             print("A key was pressed")
 
-    screen.fill(BLACK)
+    screen.blit(background, (0, 0))
+
+    
+    pygame.display.flip()
 
     pygame.draw.circle(
         screen,
@@ -42,3 +47,4 @@ while run:
 
 
 pygame.quit()
+
