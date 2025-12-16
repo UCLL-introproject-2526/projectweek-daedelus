@@ -6,7 +6,7 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 
 
-BG_SPEED = 30
+BG_SPEED = 300
 
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -55,7 +55,6 @@ def load_level():
     bg_x -= BG_SPEED * dt
     if bg_x <= -WINDOW_WIDTH:
         bg_x = 0
-
     screen.blit(background, (bg_x, 0))
     screen.blit(background, (bg_x + WINDOW_WIDTH, 0))
 
@@ -70,6 +69,7 @@ while running:
 
     handle_keys()
     load_level()
+    BG_SPEED *= 1.0004
 
     pygame.display.flip()
     dt = clock.tick(60) / 1000
