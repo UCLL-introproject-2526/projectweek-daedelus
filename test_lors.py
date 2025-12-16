@@ -67,6 +67,69 @@ def load_level():
 
     screen.blit(text_surface, text_rect)
     screen.blit(icarus, icarus_rect)
+# ------------------------------ HIT_SOUND ---------------------------------
+class Sound:
+    def __init__(self, file_path, volume=1.0):
+        self.sound = pygame.mixer.Sound(file_path)
+        self.sound.set_volume(volume)
+
+    def play(self, loops=0):
+        self.sound.play(loops=loops)
+
+    def stop(self):
+        self.sound.stop()
+
+hit_sound = Sound("music_testmap/Oof.ogg", volume=0.7)
+
+''' Example: Player gets hit randomly for demonstration
+    if randint(0, 100) < 2:  # 2% chance per frame
+        player_health -= 1
+        print(f"Player hit! Health: {player_health}")
+        hit_sound.play()  # Play the hit sound'''
+
+# ------------------------------ HIT_SOUND ---------------------------------
+
+# Simple Sound wrapper class
+class Sound:
+    def __init__(self, file_path, volume=1.0):
+        self.sound = pygame.mixer.Sound(file_path)
+        self.sound.set_volume(volume)
+
+    def play(self, loops=0):
+        self.sound.play(loops=loops)
+
+# SoundLibrary class
+class SoundLibrary:
+    def __init__(self):
+        """
+        Initialize the library and load all sounds.
+        """
+        # Dictionary mapping sound IDs to Sound objects
+        self.sounds = {
+            'explosion': Sound('oof.ogg', volume=0.7)
+            # You can add more sounds here like:
+            # 'laser': Sound('laser.ogg', volume=0.5)
+        }
+
+    def play(self, sound_id):
+        """
+        Play a sound by its ID.
+        """
+        if sound_id in self.sounds:
+            self.sounds[sound_id].play()
+        else:
+            print(f"Warning: Sound '{sound_id}' not found!")
+
+# Example usage
+if __name__ == "__main__":
+    # Create the sound library
+    sound_library = SoundLibrary()
+
+    # Example: Play the explosion sound
+    sound_library.play('explosion')
+
+# ------------------------------ HIT_SOUND ---------------------------------
+
 
 while running:
     for event in pygame.event.get():
