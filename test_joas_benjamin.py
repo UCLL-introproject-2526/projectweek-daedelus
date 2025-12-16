@@ -7,10 +7,10 @@ circle_speed = 0.3
 surface = set_mode(screen_size)
 coord = [50 , 150]
 sprite_coord = [50 , 150]
-icarus = pygame.image.load('icarus_sprite.png')
+icarus = pygame.image.load('Sprites/icarus_sprite.png') #Sprites\icarus_sprite.png
 
 def render_sprite():
-    icarus = pygame.image.load('icarus_sprite.png').convert_alpha()
+    icarus = pygame.image.load('Sprites/icarus_sprite.png').convert_alpha()
     flip()
     
 def render_frame(surface, coord):
