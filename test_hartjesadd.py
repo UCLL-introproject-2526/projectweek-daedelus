@@ -165,7 +165,7 @@ def update_hearts():
 
 def draw_lives():
     for i in range(lives):
-        screen.blit(heart_image, (WINDOW_WIDTH - 40 * (i + 1), 10))
+        screen.blit(heart_image, (WINDOW_WIDTH - 50 * (i + 1), 0))
 
 
 def load_level():
