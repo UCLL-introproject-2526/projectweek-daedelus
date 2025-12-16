@@ -87,7 +87,7 @@ while running:
 
     handle_keys()
     load_level()
-    BG_SPEED *= 1.0004
+    BG_SPEED *= 1.0002
     score += dt*20
 
     pygame.display.flip()
