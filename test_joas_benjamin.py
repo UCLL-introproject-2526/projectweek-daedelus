@@ -2,12 +2,18 @@ import pygame
 
 pygame.init()
 
+#Music
+pygame.mixer.init()
+
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 UI_BAR = 50
 BG_SPEED = 300
 WAVE_SPEED = 200
 
+#Music 
+pygame.mixer.music.load("music_testmap/2.ogg")
+pygame.mixer.music.play(-1)
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('bang bang')
@@ -87,9 +93,7 @@ while running:
 
     handle_keys()
     load_level()
-    if WAVE_SPEED <= 600:
-        BG_SPEED += 0.2
-        WAVE_SPEED += 0.1
+    BG_SPEED *= 1.0004
     score += dt*20
 
     pygame.display.flip()
