@@ -15,7 +15,8 @@ pygame.display.set_caption('bang bang')
 clock = pygame.time.Clock()
 running = True
 dt = 0
-
+score = 0
+score_font = pygame.font.Font("fonts/Cinzel-VariableFont_wght.ttf", 24)
 
 background = pygame.image.load("Sprites/background.png").convert()
 background = pygame.transform.scale(background, (WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -68,14 +69,16 @@ def infinite_waves():
 
     if waves_x <= -WINDOW_WIDTH:
         waves_x = 0
-    screen.blit(waves, (waves_x, 0))
-    screen.blit(waves, (waves_x + WINDOW_WIDTH, 0))
+    screen.blit(waves, (waves_x, WINDOW_HEIGHT-100))
+    screen.blit(waves, (waves_x + WINDOW_WIDTH, WINDOW_HEIGHT-100))
     
 def load_level():
     infinite_background()
     infinite_waves()
     screen.blit(text_surface, text_rect)
     screen.blit(icarus, icarus_rect)
+    score_text = score_font.render(f"Score: {int(score)}", True, (0, 0, 0))
+    screen.blit(score_text, (20, 20))
 
 while running:
     for event in pygame.event.get():
@@ -85,6 +88,7 @@ while running:
     handle_keys()
     load_level()
     BG_SPEED *= 1.0004
+    score += dt*20
 
     pygame.display.flip()
     dt = clock.tick(60) / 1000
