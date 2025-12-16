@@ -159,7 +159,6 @@ while running:
 
     if heart_speed < 400:
         heart_speed *= 1.0004
-    BG_SPEED *= 1.0004
     score += dt*20   
 
     pygame.display.flip()
