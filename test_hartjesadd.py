@@ -245,44 +245,10 @@ def reset_game():
     global score, BG_SPEED, pillar_timer
     score = 0
     BG_SPEED = 300
-    pillar_timer = 1
+    pillar_timer = 0
     pillars.clear()
     icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
 
-<<<<<<< Updated upstream
-=======
-def spawn_bird():
-    y = randrange(60, WINDOW_HEIGHT - 180)  # nooit in zee
-    rect = bird_frames[0].get_rect(midleft=(WINDOW_WIDTH + 50, y))
-    birds.append(rect)
-
-
-def update_birds():
-    global lives, hit_timer
-
-    for bird in birds[:]:
-        bird.x -= BIRD_SPEED * dt
-
-        if bird.right < 0:
-            birds.remove(bird)
-            continue
-
-        offset_x = bird.x - icarus_rect.x
-        offset_y = bird.y - icarus_rect.y
-
-        if hit_timer <= 0:
-            if icarus_mask.overlap(
-                bird_masks[bird_frame_index], (offset_x, offset_y)
-            ):
-                lives -= 1
-                if lives <= 0: 
-                 reset_game()
-                hit_timer = HIT_COOLDOWN
-                birds.remove(bird)
-
-        screen.blit(bird_frames[bird_frame_index], bird)
-
->>>>>>> Stashed changes
 # ========================
 # MAIN LOOP
 # ========================
@@ -325,7 +291,7 @@ while running:
         hit_timer = HIT_COOLDOWN
 
         if lives <= 0:
-           reset_game()
+            running = False
 
     score += dt * 20
 
