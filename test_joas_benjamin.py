@@ -146,7 +146,7 @@ while running:
     handle_keys()
     load_level()
     if WAVE_SPEED <= 600:
-        BG_SPEED += 0.2
+        BG_SPEED += 0.002
         WAVE_SPEED += 0.1    
     score += dt*20
 
