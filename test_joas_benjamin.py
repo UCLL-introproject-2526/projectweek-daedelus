@@ -13,7 +13,7 @@ BG_SPEED = 300
 WAVE_SPEED = 200
 
 #Music 
-pygame.mixer.music.load("music_testmap/2.ogg")
+pygame.mixer.music.load("Sound/Music/2.ogg")
 pygame.mixer.music.play(-1)
 
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
