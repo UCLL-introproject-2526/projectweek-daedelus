@@ -22,6 +22,11 @@ lives = 3
 HIT_COOLDOWN = 1.2
 hit_timer = 0
 
+# Vogel
+BIRD_SPEED = 250
+BIRD_SPAWN_TIME = 2.0
+BIRD_ANIM_SPEED = 0.15
+
 # ========================
 # SETUP
 # ========================
@@ -91,6 +96,27 @@ PILLAR_WIDTH = pillar_img.get_width()
 
 pillars = []
 pillar_timer = 0
+
+# ========================
+# VOGEL FRAMES (GESCHAALD)
+# ========================
+bird_frames = []
+for img in [
+    "Sprites/bird1.png",
+    "Sprites/bird2.png",
+]:
+    image = pygame.image.load(img).convert_alpha()
+    image = pygame.transform.scale(
+        image, (image.get_width() // 2, image.get_height() // 2)
+    )
+    bird_frames.append(image)
+
+bird_masks = [pygame.mask.from_surface(f) for f in bird_frames]
+
+birds = []
+bird_spawn_timer = 0
+bird_anim_timer = 0
+bird_frame_index = 0
 
 # ========================
 # FUNCTIES
@@ -249,6 +275,35 @@ def reset_game():
     pillars.clear()
     icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
 
+def spawn_bird():
+    y = randrange(60, WINDOW_HEIGHT - 180)  # nooit in zee
+    rect = bird_frames[0].get_rect(midleft=(WINDOW_WIDTH + 50, y))
+    birds.append(rect)
+
+
+def update_birds():
+    global lives, hit_timer
+
+    for bird in birds[:]:
+        bird.x -= BIRD_SPEED * dt
+
+        if bird.right < 0:
+            birds.remove(bird)
+            continue
+
+        offset_x = bird.x - icarus_rect.x
+        offset_y = bird.y - icarus_rect.y
+
+        if hit_timer <= 0:
+            if icarus_mask.overlap(
+                bird_masks[bird_frame_index], (offset_x, offset_y)
+            ):
+                lives -= 1
+                hit_timer = HIT_COOLDOWN
+                birds.remove(bird)
+
+        screen.blit(bird_frames[bird_frame_index], bird)
+
 # ========================
 # MAIN LOOP
 # ========================
@@ -280,7 +335,18 @@ while running:
 
     pillars[:] = [p for p in pillars if p.x > -PILLAR_WIDTH]
 
+    bird_spawn_timer += dt
+    if bird_spawn_timer >= BIRD_SPAWN_TIME:
+        spawn_bird()
+        bird_spawn_timer = 0
+
+    bird_anim_timer += dt
+    if bird_anim_timer >= BIRD_ANIM_SPEED:
+        bird_anim_timer = 0
+        bird_frame_index = (bird_frame_index + 1) % len(bird_frames)
+
     load_level()
+    update_birds()
     # hit cooldown
     if hit_timer > 0:
         hit_timer -= dt
