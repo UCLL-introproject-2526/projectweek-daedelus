@@ -23,7 +23,7 @@ HIT_COOLDOWN = 1.2
 hit_timer = 0
 
 # Vogel
-BIRD_SPEED = 250
+BIRD_SPEED = 500
 BIRD_SPAWN_TIME = 2.0
 BIRD_ANIM_SPEED = 0.15
 
@@ -85,7 +85,7 @@ waves_x = 0
 # ========================
 hearts = []
 heart_speed = 200
-heart_spawn_time = 2.5
+heart_spawn_time = 5
 heart_timer = 0
 
 # Pillars
@@ -171,7 +171,7 @@ def check_wave_collision():
 
 def spawn_heart():
     heart_rect = heart_image.get_rect(
-        midleft=(WINDOW_WIDTH + 50, randrange(50, WINDOW_HEIGHT - 200))
+        midleft=(WINDOW_WIDTH + 50, randrange(75, WINDOW_HEIGHT - 100))
     )
     hearts.append(heart_rect)
 
@@ -315,7 +315,7 @@ while running:
     handle_keys()
 
     pillar_timer += dt
-    if pillar_timer >= max(1.0, 1.8 - score * 0.01):
+    if pillar_timer >= max(2, 1.8 - score * 0.01):
         gap = max(95, 180 - score * 0.15)
         pillars.append(PillarPair(WINDOW_WIDTH + 100, gap))
         pillar_timer = 0
