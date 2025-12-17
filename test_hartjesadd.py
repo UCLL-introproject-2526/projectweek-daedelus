@@ -23,9 +23,14 @@ HIT_COOLDOWN = 1.2
 hit_timer = 0
 
 # Vogel
-BIRD_SPEED = 250
+BIRD_SPEED = 500
 BIRD_SPAWN_TIME = 2.0
 BIRD_ANIM_SPEED = 0.15
+
+SUN_HEIGHT = 100
+SUN_DAMAGE_Y = UI_BAR
+SUN_TOLERANCE = 25  # hoeveel pixels je mag "indringen" zonder damage
+
 
 # ========================
 # SETUP
@@ -64,6 +69,11 @@ icarus = pygame.image.load('Sprites/icarus_sprite.png').convert_alpha()
 icarus_rect = icarus.get_rect(midleft=(0, WINDOW_HEIGHT / 2))
 icarus_mask = pygame.mask.from_surface(icarus)
 
+sun_surface = pygame.Surface((WINDOW_WIDTH, SUN_HEIGHT), pygame.SRCALPHA)
+sun_surface.fill((255, 200, 0, 180))  # zelfde kleur als glow
+sun_mask = pygame.mask.from_surface(sun_surface)
+
+
 # ========================
 # TEKST
 # ========================
@@ -85,7 +95,7 @@ waves_x = 0
 # ========================
 hearts = []
 heart_speed = 200
-heart_spawn_time = 2.5
+heart_spawn_time = 5
 heart_timer = 0
 
 # Pillars
@@ -168,10 +178,14 @@ def check_wave_collision():
 
     return False
 
+def check_sun_collision():
+    penetration = (UI_BAR + SUN_HEIGHT) - icarus_rect.top
+    return penetration > SUN_TOLERANCE
+
 
 def spawn_heart():
     heart_rect = heart_image.get_rect(
-        midleft=(WINDOW_WIDTH + 50, randrange(50, WINDOW_HEIGHT - 200))
+        midleft=(WINDOW_WIDTH + 50, randrange(75, WINDOW_HEIGHT - 100))
     )
     hearts.append(heart_rect)
 
@@ -199,6 +213,13 @@ def update_hearts():
 
         screen.blit(heart_image, heart)
 
+def draw_sun_glow():
+    for y in range(SUN_HEIGHT):
+        alpha = int(180 * (1 - y / SUN_HEIGHT))  # sterk bovenaan, zwakker naar beneden
+        color = (255, 170, 0, alpha)  # oranje/geel
+        glow_line = pygame.Surface((WINDOW_WIDTH, 1), pygame.SRCALPHA)
+        glow_line.fill(color)
+        screen.blit(glow_line, (0, SUN_DAMAGE_Y + y))
 
 def draw_lives():
     for i in range(lives):
@@ -208,6 +229,9 @@ def draw_lives():
 def load_level():
     infinite_background()
     infinite_waves()
+
+    draw_sun_glow()
+
     screen.blit(text_surface, text_rect)
 
     for pillar in pillars:
@@ -315,7 +339,7 @@ while running:
     handle_keys()
 
     pillar_timer += dt
-    if pillar_timer >= max(1.0, 1.8 - score * 0.01):
+    if pillar_timer >= max(2, 1.8 - score * 0.01):
         gap = max(95, 180 - score * 0.15)
         pillars.append(PillarPair(WINDOW_WIDTH + 100, gap))
         pillar_timer = 0
@@ -350,6 +374,10 @@ while running:
     # hit cooldown
     if hit_timer > 0:
         hit_timer -= dt
+
+    if check_sun_collision() and hit_timer <= 0:
+        lives -= 1
+        hit_timer = HIT_COOLDOWN 
 
     # zee raakt → 1 leven verliezen
     if check_wave_collision() and hit_timer <= 0:
