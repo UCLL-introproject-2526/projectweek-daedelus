@@ -33,6 +33,8 @@ SUN_HEIGHT = 100
 SUN_DAMAGE_Y = UI_BAR
 SUN_TOLERANCE = 25  # hoeveel pixels je mag "indringen" zonder damage
 
+INVINCIBILITY_DURATION = 5.0
+invincible_timer = 0
 # Levels
 
 LEVEL_INTRO = {
