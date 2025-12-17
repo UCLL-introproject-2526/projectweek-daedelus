@@ -46,7 +46,8 @@ LEVEL_INTRO = {
     "BIRD_SPAWN": 3.0,
     "PILLAR_SPAWN": 2,
     "POWERUP_SPAWN": 12.0,
-    "SCORE_LIMIT": 1000
+    "SCORE_LIMIT": 1000,
+    "HEART_SPAWN_TIME": 3,
 }
 
 LEVEL_EASY = {
@@ -55,7 +56,8 @@ LEVEL_EASY = {
     "BIRD_SPAWN": 1.3,
     "PILLAR_SPAWN": 1.7,
     "POWERUP_SPAWN": 15.0,
-    "SCORE_LIMIT": 2000
+    "SCORE_LIMIT": 2000,
+    "HEART_SPAWN_TIME": 10,
 }
 
 LEVEL_MEDIUM = {
@@ -72,8 +74,9 @@ LEVEL_IMPOSSIBLE = {
     "PILLAR_SPEED": 700,
     "BIRD_SPAWN": 0.1,
     "PILLAR_SPAWN": 0.5,
-    "POWERUP_SPAWN": 30.0,
-    "SCORE_LIMIT": None
+    "POWERUP_SPAWN": 20,
+    "SCORE_LIMIT": None,
+    "HEART_SPAWN_TIME": 30,
 }
 
 # ========================
@@ -546,6 +549,7 @@ while running:
                 PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
                 powerup_spawn_time = current_level["POWERUP_SPAWN"]
                 LEVEL_SCORE_LIMIT = current_level["SCORE_LIMIT"]
+                heart_spawn_time = current_level["HEART_SPAWN_TIME"]
 
                 lives = MAX_LIVES
                 score = 0
