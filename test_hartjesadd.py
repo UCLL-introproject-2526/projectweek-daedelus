@@ -12,6 +12,10 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 UI_BAR = 50
 
+LEVEL_X = 260
+LEVEL_Y_START = 200
+LEVEL_SPACING = 50
+
 BG_SPEED = 300
 WAVE_SPEED = 200
 PILLAR_SPEED = 300
@@ -152,6 +156,21 @@ sun_mask = pygame.mask.from_surface(sun_surface)
 
 powerup_image = pygame.image.load("Sprites/Shield.png").convert_alpha()
 powerup_mask = pygame.mask.from_surface(powerup_image)
+
+SCALE = 0.5  # kleiner = 0.6, groter = 0.8
+
+level_intro_img = pygame.transform.scale_by(
+    pygame.image.load("Sprites/intro1.png").convert_alpha(), SCALE
+)
+level_easy_img = pygame.transform.scale_by(
+    pygame.image.load("Sprites/easy2.png").convert_alpha(), SCALE
+)
+level_medium_img = pygame.transform.scale_by(
+    pygame.image.load("Sprites/meduim3.png").convert_alpha(), SCALE
+)
+level_impossible_img = pygame.transform.scale_by(
+    pygame.image.load("Sprites/impossible4.png").convert_alpha(), SCALE
+)
 
 # ========================
 # BACKGROUND VARS
@@ -553,10 +572,10 @@ def draw_level_select():
 
     screen.blit(font.render("Flight of Icarus", True, (212, 175, 55)),(260, 100))
     screen.blit(font.render("Kies een level:", True, (255,255,255)), (260, 150))
-    screen.blit(font.render(Game_level1, True, (200,200,200)), (260, 200))
-    screen.blit(font.render(Game_level2, True, (200,200,200)), (260, 240))
-    screen.blit(font.render(Game_level3, True, (200,200,200)), (260, 280))
-    screen.blit(font.render(Game_level4, True, (200,200,200)), (260, 320))
+    screen.blit(level_intro_img, (LEVEL_X, LEVEL_Y_START))
+    screen.blit(level_easy_img, (LEVEL_X, LEVEL_Y_START + LEVEL_SPACING))
+    screen.blit(level_medium_img, (LEVEL_X, LEVEL_Y_START + LEVEL_SPACING * 2))
+    screen.blit(level_impossible_img, (LEVEL_X, LEVEL_Y_START + LEVEL_SPACING * 3))
 
 def draw_level_completed():
     infinite_background()
