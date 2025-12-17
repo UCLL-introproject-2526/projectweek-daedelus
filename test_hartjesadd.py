@@ -22,6 +22,8 @@ lives = 3
 HIT_COOLDOWN = 1.2
 hit_timer = 0
 
+PILLAR_SPAWN_TIME = 2.0
+
 # Vogel
 BIRD_SPEED = 500
 BIRD_SPAWN_TIME = 2.0
@@ -37,24 +39,28 @@ LEVEL_INTRO = {
     "BG_SPEED": 250,
     "PILLAR_SPEED": 250,
     "BIRD_SPAWN": 3.0,
+    "PILLAR_SPAWN": 2,
 }
 
 LEVEL_EASY = {
-    "BG_SPEED": 300,
-    "PILLAR_SPEED": 350,
-    "BIRD_SPAWN": 2,
+    "BG_SPEED": 400,
+    "PILLAR_SPEED": 400,
+    "BIRD_SPAWN": 1.3,
+    "PILLAR_SPAWN": 1.7,
 }
 
 LEVEL_MEDIUM = {
-    "BG_SPEED": 350,
-    "PILLAR_SPEED": 450,
-    "BIRD_SPAWN": 1.0,
+    "BG_SPEED": 550,
+    "PILLAR_SPEED": 550,
+    "BIRD_SPAWN": 0.7,
+    "PILLAR_SPAWN": 1,
 }
 
 LEVEL_IMPOSSIBLE = {
-    "BG_SPEED": 500,
-    "PILLAR_SPEED": 600,
-    "BIRD_SPAWN": 0.5,
+    "BG_SPEED": 700,
+    "PILLAR_SPEED": 700,
+    "BIRD_SPAWN": 0.1,
+    "PILLAR_SPAWN": 0.5,
 }
 
 # ========================
@@ -345,7 +351,7 @@ class PillarPair:
             or self.bottom_hitbox.colliderect(player_rect)
         )
 def reset_game():
-    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer
+    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer, score, pillar_timer
     bird_spawn_timer = 0
     bird_anim_timer = 0
     bird_frame_index = 0
@@ -359,7 +365,7 @@ def reset_game():
     icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
 
 def spawn_bird():
-    y = randrange(60, WINDOW_HEIGHT - 180)  # nooit in zee
+    y = randrange(60, WINDOW_HEIGHT - 120)  # nooit in zee
     rect = bird_frames[0].get_rect(midleft=(WINDOW_WIDTH + 50, y))
     birds.append(rect)
 
@@ -460,6 +466,7 @@ while running:
                 BG_SPEED = current_level["BG_SPEED"]
                 PILLAR_SPEED = current_level["PILLAR_SPEED"]
                 BIRD_SPAWN_TIME = current_level["BIRD_SPAWN"]
+                PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
                 lives = MAX_LIVES
                 score = 0
                 reset_game()
@@ -485,7 +492,7 @@ while running:
     handle_keys()
 
     pillar_timer += dt
-    if pillar_timer >= max(2, 1.8 - score * 0.01):
+    if pillar_timer >= PILLAR_SPAWN_TIME:
         gap = max(95, 180 - score * 0.15)
         pillars.append(PillarPair(WINDOW_WIDTH + 100, gap))
         pillar_timer = 0
