@@ -295,7 +295,7 @@ class SoundLibrary:
         splash_sound.set_volume(1.0)
 
         oof_sound = pygame.mixer.Sound("Sound/Soundeffect/Oof.ogg")
-        oof_sound.set_volume(0.5)
+        oof_sound.set_volume(0.4)
 
         hit_sound = pygame.mixer.Sound("Sound\Soundeffect\Hit.ogg")
         hit_sound.set_volume(1.0)
@@ -306,13 +306,18 @@ class SoundLibrary:
         powerup_sound = pygame.mixer.Sound("Sound/Soundeffect/Powerup.ogg")
         powerup_sound.set_volume(1.0)
 
+        sun_sound = pygame.mixer.Sound("Sound\Soundeffect\Sun_damage.ogg")
+        sun_sound.set_volume(0.3)
+
+
         self.sounds = {
             "heart": heart_sound,
             "splash": splash_sound,
             "oof": oof_sound, 
             "hit": hit_sound,
             "bird": bird_sound,
-            "powerup": powerup_sound
+            "powerup": powerup_sound,
+            "sun": sun_sound
             
             
         }
@@ -752,6 +757,7 @@ while running:
         lives -= 1
         hit_timer = HIT_COOLDOWN 
         sound_library.play("oof")
+        sound_library.play("sun")
 
     # zee raakt → 1 leven verliezen
     if check_wave_collision() and hit_timer <= 0 and invincible_timer <= 0:
