@@ -24,6 +24,9 @@ hit_timer = 0
 
 PILLAR_SPAWN_TIME = 2.0
 
+LEVEL_SCORE_LIMIT = None
+
+
 # Vogel
 BIRD_SPEED = 500
 BIRD_SPAWN_TIME = 2.0
@@ -43,6 +46,7 @@ LEVEL_INTRO = {
     "BIRD_SPAWN": 3.0,
     "PILLAR_SPAWN": 2,
     "POWERUP_SPAWN": 12.0,
+    "SCORE_LIMIT": 1000
 }
 
 LEVEL_EASY = {
@@ -51,6 +55,7 @@ LEVEL_EASY = {
     "BIRD_SPAWN": 1.3,
     "PILLAR_SPAWN": 1.7,
     "POWERUP_SPAWN": 15.0,
+    "SCORE_LIMIT": 2000
 }
 
 LEVEL_MEDIUM = {
@@ -59,6 +64,7 @@ LEVEL_MEDIUM = {
     "BIRD_SPAWN": 0.7,
     "PILLAR_SPAWN": 1,
     "POWERUP_SPAWN": 20.0,
+    "SCORE_LIMIT": 2000
 }
 
 LEVEL_IMPOSSIBLE = {
@@ -67,6 +73,7 @@ LEVEL_IMPOSSIBLE = {
     "BIRD_SPAWN": 0.1,
     "PILLAR_SPAWN": 0.5,
     "POWERUP_SPAWN": 30.0,
+    "SCORE_LIMIT": None
 }
 
 # ========================
@@ -503,6 +510,7 @@ while running:
             if event.key == pygame.K_1:
                 current_level = LEVEL_INTRO
                 Level_Shown = Game_level1
+
             if event.key == pygame.K_2:
                 current_level = LEVEL_EASY
                 Level_Shown = Game_level2
@@ -515,13 +523,14 @@ while running:
                 current_level = LEVEL_IMPOSSIBLE
                 Level_Shown = Game_level4
 
-
             if current_level:
                 BG_SPEED = current_level["BG_SPEED"]
                 PILLAR_SPEED = current_level["PILLAR_SPEED"]
                 BIRD_SPAWN_TIME = current_level["BIRD_SPAWN"]
                 PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
                 powerup_spawn_time = current_level["POWERUP_SPAWN"]
+                LEVEL_SCORE_LIMIT = current_level["SCORE_LIMIT"]
+
                 lives = MAX_LIVES
                 score = 0
                 reset_game()
@@ -611,6 +620,8 @@ while running:
 
 
     score += dt * 20
+    if LEVEL_SCORE_LIMIT is not None and score >= LEVEL_SCORE_LIMIT:
+        game_over()   # of later: LEVEL_COMPLETED
 
     heart_timer += dt
     if heart_timer >= heart_spawn_time:
