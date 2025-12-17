@@ -97,11 +97,11 @@ text_rect = text_surface.get_rect(center=(WINDOW_WIDTH / 2, 100))
 # ========================
 # TEKST 2
 # ========================
-title_text = font.render("BANG BANG", True, (212, 175, 55))
-start_text = font.render("Druk op SPACE om te starten", True, (255, 255, 255))
+title_text = font.render("Flight of Icarus", True, (212, 175, 55))
+start_text = font.render("Press SPACE to start", True, (255, 255, 255))
 
 game_over_text = font.render("GAME OVER", True, (200, 50, 50))
-restart_text = font.render("SPACE = opnieuw spelen", True, (255, 255, 255))
+restart_text = font.render("Press SPACE to restart", True, (255, 255, 255))
 
 # ========================
 # BACKGROUND VARS
