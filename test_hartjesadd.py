@@ -12,8 +12,8 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 UI_BAR = 50
 
-LEVEL_X = 260
-LEVEL_Y_START = 200
+LEVEL_X = 450
+LEVEL_Y_START = 260
 LEVEL_SPACING = 50
 
 BG_SPEED = 300
@@ -133,6 +133,12 @@ background = pygame.transform.scale(background, (WINDOW_WIDTH, WINDOW_HEIGHT + U
 waves = pygame.image.load("Sprites/waves.png").convert_alpha()
 waves = pygame.transform.scale(waves, (WINDOW_WIDTH, WINDOW_HEIGHT // 4))
 waves_mask = pygame.mask.from_surface(waves)
+
+icarus_corner = pygame.image.load("Sprites/icarus25.png").convert_alpha()
+icarus_corner = pygame.transform.scale_by(icarus_corner, 0.2)  # pas schaal aan indien nodig
+icarus_corner_rect = icarus_corner.get_rect(
+    topleft=(10, 10)
+)
 
 heart_image = pygame.image.load('Sprites/heart.png').convert_alpha()
 heart_mask = pygame.mask.from_surface(heart_image)
@@ -594,12 +600,14 @@ def draw_level_select():
     infinite_background()
     infinite_waves()
 
-    screen.blit(font.render("Flight of Icarus", True, (212, 175, 55)),(260, 100))
-    screen.blit(font.render("Kies een level:", True, (255,255,255)), (260, 150))
+    screen.blit(font.render("Flight of Icarus", True, (212, 175, 55)),(LEVEL_X, LEVEL_Y_START - 100))
+    screen.blit(font.render("Kies een level:", True, (255,255,255)), (LEVEL_X, LEVEL_Y_START - 50))
     screen.blit(level_intro_img, (LEVEL_X, LEVEL_Y_START))
     screen.blit(level_easy_img, (LEVEL_X, LEVEL_Y_START + LEVEL_SPACING))
     screen.blit(level_medium_img, (LEVEL_X, LEVEL_Y_START + LEVEL_SPACING * 2))
     screen.blit(level_impossible_img, (LEVEL_X, LEVEL_Y_START + LEVEL_SPACING * 3))
+    
+    screen.blit(icarus_corner, icarus_corner_rect)
 
 def draw_level_completed():
     infinite_background()
