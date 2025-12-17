@@ -60,6 +60,11 @@ LEVEL_IMPOSSIBLE = {
 # ========================
 # SETUP
 # ========================
+Level_Shown = None
+Game_level1 = "1 - Intro"
+Game_level2 = "2 - Easy"
+Game_level3 ="3 - Medium"
+Game_level4 ="4 - Impossible"
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('Flight of Icarus')
 clock = pygame.time.Clock()
@@ -287,9 +292,12 @@ def load_level():
         screen.blit(icarus, icarus_rect)
 
     screen.blit(Ui, (0, 0))
+    Level_Ui = font.render(Level_Shown, True, (255,255,255), )
 
     score_text = score_font.render(f"Score: {int(score)}", True, (255, 255, 255))
     screen.blit(score_text, (10, 10))
+    screen.blit(Level_Ui, (WINDOW_WIDTH/2 - 100, 10))
+
 
     draw_lives()
 
@@ -416,10 +424,10 @@ def draw_level_select():
     infinite_waves()
 
     screen.blit(font.render("Kies een level:", True, (255,255,255)), (260, 150))
-    screen.blit(font.render("1 - Intro", True, (200,200,200)), (260, 200))
-    screen.blit(font.render("2 - Easy", True, (200,200,200)), (260, 240))
-    screen.blit(font.render("3 - Medium", True, (200,200,200)), (260, 280))
-    screen.blit(font.render("4 - Impossible", True, (200,200,200)), (260, 320))
+    screen.blit(font.render(Game_level1, True, (200,200,200)), (260, 200))
+    screen.blit(font.render(Game_level2, True, (200,200,200)), (260, 240))
+    screen.blit(font.render(Game_level3, True, (200,200,200)), (260, 280))
+    screen.blit(font.render(Game_level4, True, (200,200,200)), (260, 320))
 
 
 
@@ -434,12 +442,19 @@ while running:
         if state == LEVEL_SELECT and event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
                 current_level = LEVEL_INTRO
+                Level_Shown = Game_level1
             if event.key == pygame.K_2:
                 current_level = LEVEL_EASY
+                Level_Shown = Game_level2
+
             if event.key == pygame.K_3:
                 current_level = LEVEL_MEDIUM
+                Level_Shown = Game_level3
+
             if event.key == pygame.K_4:
                 current_level = LEVEL_IMPOSSIBLE
+                Level_Shown = Game_level4
+
 
             if current_level:
                 BG_SPEED = current_level["BG_SPEED"]
