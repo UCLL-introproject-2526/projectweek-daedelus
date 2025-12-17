@@ -55,7 +55,7 @@ LEVEL_EASY = {
     "BIRD_SPAWN": 1.3,
     "PILLAR_SPAWN": 1.7,
     "POWERUP_SPAWN": 15.0,
-    "SCORE_LIMIT": 200
+    "SCORE_LIMIT": 2000
 }
 
 LEVEL_MEDIUM = {
@@ -64,7 +64,7 @@ LEVEL_MEDIUM = {
     "BIRD_SPAWN": 0.7,
     "PILLAR_SPAWN": 1,
     "POWERUP_SPAWN": 20.0,
-    "SCORE_LIMIT": 2000
+    "SCORE_LIMIT": 3000
 }
 
 LEVEL_IMPOSSIBLE = {
@@ -107,7 +107,6 @@ record = 0
 # MUSIC
 # ========================
 pygame.mixer.music.load("Sound/Music/2.ogg")
-pygame.mixer.music.set_volume(0.3)
 pygame.mixer.music.play(-1)
 
 # ========================
@@ -139,7 +138,7 @@ sun_surface = pygame.Surface((WINDOW_WIDTH, SUN_HEIGHT), pygame.SRCALPHA)
 sun_surface.fill((255, 200, 0, 180))  # zelfde kleur als glow
 sun_mask = pygame.mask.from_surface(sun_surface)
 
-powerup_image = pygame.image.load("Sprites/Shield.png").convert_alpha()
+powerup_image = pygame.image.load("Sprites/powerup_veer.png").convert_alpha()
 powerup_mask = pygame.mask.from_surface(powerup_image)
 
 # ========================
@@ -270,42 +269,6 @@ def spawn_heart():
     )
     hearts.append(heart_rect)
 
-class SoundLibrary:
-    def __init__(self):
-        heart_sound = pygame.mixer.Sound("Sound/Soundeffect/Heart.ogg")
-        heart_sound.set_volume(1.0)
-        
-        splash_sound = pygame.mixer.Sound("Sound/Soundeffect/Splash.ogg")
-        splash_sound.set_volume(1.0)
-
-        oof_sound = pygame.mixer.Sound("Sound/Soundeffect/Oof.ogg")
-        oof_sound.set_volume(0.5)
-
-        hit_sound = pygame.mixer.Sound("Sound\Soundeffect\Hit.ogg")
-        hit_sound.set_volume(1.0)
-
-        bird_sound = pygame.mixer.Sound("Sound/Soundeffect/Bird.ogg")
-        bird_sound.set_volume(1.0)
-        
-        powerup_sound = pygame.mixer.Sound("Sound\Soundeffect\Powerup.ogg")
-        powerup_sound.set_volume(1.0)
-
-        self.sounds = {
-            "heart": heart_sound,
-            "splash": splash_sound,
-            "oof": oof_sound, 
-            "hit": hit_sound,
-            "bird": bird_sound,
-            "powerup": powerup_sound
-            
-            
-        }
-        
-    def play(self, sound_id):
-        if sound_id in self.sounds:
-            self.sounds[sound_id].play()
-
-sound_library = SoundLibrary()
 
 def update_hearts():
     global lives
@@ -322,8 +285,6 @@ def update_hearts():
 
         if icarus_mask.overlap(heart_mask, (offset_x, offset_y)):
             hearts.remove(heart)
-
-            sound_library.play("heart")
 
             if lives < MAX_LIVES:
                 lives += 1
@@ -364,7 +325,6 @@ def update_powerups():
         offset_y = p.y - icarus_rect.y
 
         if icarus_mask.overlap(powerup_mask, (offset_x, offset_y)):
-            sound_library.play("powerup")
             invincible_timer = INVINCIBILITY_DURATION
             powerups.remove(p)
             continue
@@ -488,8 +448,6 @@ def update_birds():
             if icarus_mask.overlap(
                 bird_masks[bird_frame_index], (offset_x, offset_y)
             ):
-                sound_library.play("bird")
-                sound_library.play("oof")
                 lives -= 1
                 hit_timer = HIT_COOLDOWN
                 birds.remove(bird)
@@ -667,8 +625,6 @@ while running:
         if pillar.collides(icarus_rect) and hit_timer <= 0 and invincible_timer <= 0:
             lives -= 1
             hit_timer = HIT_COOLDOWN
-            sound_library.play("oof"),
-            sound_library.play("hit")
 
             if lives <= 0:
                 if score > record:
@@ -702,15 +658,12 @@ while running:
     if check_sun_collision() and hit_timer <= 0 and invincible_timer <= 0:
 
         lives -= 1
-        sound_library.play("oof")
         hit_timer = HIT_COOLDOWN 
 
     # zee raakt → 1 leven verliezen
     if check_wave_collision() and hit_timer <= 0 and invincible_timer <= 0:
         lives -= 1
         hit_timer = HIT_COOLDOWN
-        sound_library.play("splash")
-        sound_library.play("oof")
 
         if lives <= 0:
             # update record als nodig
