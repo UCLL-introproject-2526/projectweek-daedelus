@@ -22,36 +22,22 @@ lives = 3
 HIT_COOLDOWN = 1.2
 hit_timer = 0
 
-# Vogel
-BIRD_SPEED = 500
-BIRD_SPAWN_TIME = 2.0
-BIRD_ANIM_SPEED = 0.15
+hit_wave = False #------NEW LINE
 
 # ========================
 # SETUP
 # ========================
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pygame.display.set_caption('Flight of Icarus')
+pygame.display.set_caption('bang bang')
 clock = pygame.time.Clock()
 running = True
 dt = 0
 score = 0
 
 # ========================
-# GAME STATES
-# ========================
-START = 0
-PLAYING = 1
-GAME_OVER = 2
-
-state = START
-record = 0
-
-# ========================
 # MUSIC
 # ========================
-pygame.mixer.music.load("Sound/Music/2.ogg")
-pygame.mixer.music.play(-1)
+
 
 # ========================
 # FONTS & IMAGES
@@ -85,15 +71,6 @@ text_surface = font.render(
 text_rect = text_surface.get_rect(center=(WINDOW_WIDTH / 2, 100))
 
 # ========================
-# TEKST 2
-# ========================
-title_text = font.render("BANG BANG", True, (212, 175, 55))
-start_text = font.render("Druk op SPACE om te starten", True, (255, 255, 255))
-
-game_over_text = font.render("GAME OVER", True, (200, 50, 50))
-restart_text = font.render("SPACE = opnieuw spelen", True, (255, 255, 255))
-
-# ========================
 # BACKGROUND VARS
 # ========================
 bg_x = 0
@@ -104,7 +81,7 @@ waves_x = 0
 # ========================
 hearts = []
 heart_speed = 200
-heart_spawn_time = 5
+heart_spawn_time = 2.5
 heart_timer = 0
 
 # Pillars
@@ -115,27 +92,6 @@ PILLAR_WIDTH = pillar_img.get_width()
 
 pillars = []
 pillar_timer = 0
-
-# ========================
-# VOGEL FRAMES (GESCHAALD)
-# ========================
-bird_frames = []
-for img in [
-    "Sprites/bird1.png",
-    "Sprites/bird2.png",
-]:
-    image = pygame.image.load(img).convert_alpha()
-    image = pygame.transform.scale(
-        image, (image.get_width() // 2, image.get_height() // 2)
-    )
-    bird_frames.append(image)
-
-bird_masks = [pygame.mask.from_surface(f) for f in bird_frames]
-
-birds = []
-bird_spawn_timer = 0
-bird_anim_timer = 0
-bird_frame_index = 0
 
 # ========================
 # FUNCTIES
@@ -188,12 +144,49 @@ def check_wave_collision():
     return False
 
 
+
 def spawn_heart():
     heart_rect = heart_image.get_rect(
-        midleft=(WINDOW_WIDTH + 50, randrange(75, WINDOW_HEIGHT - 100))
+        midleft=(WINDOW_WIDTH + 50, randrange(50, WINDOW_HEIGHT - 200))
     )
     hearts.append(heart_rect)
 
+
+#-----------TEST
+#-----------TEST
+#-----------TEST
+
+
+
+class SoundLibrary:
+    def __init__(self):
+        heart_sound = pygame.mixer.Sound("Sound/Soundeffect/Heart.ogg")
+        heart_sound.set_volume(1.0)
+        
+        splash_sound = pygame.mixer.Sound("Sound/Soundeffect/Splash.ogg")
+        splash_sound.set_volume(1.0)
+
+        oof_sound = pygame.mixer.Sound("Sound/Soundeffect/Oof.ogg")  # <--- NEW
+        oof_sound.set_volume(1.0)
+
+        self.sounds = {
+            "heart": heart_sound,
+            "splash": splash_sound,
+            "oof": oof_sound 
+            
+            
+        }
+        
+    def play(self, sound_id):
+        if sound_id in self.sounds:
+            self.sounds[sound_id].play()
+
+sound_library = SoundLibrary()
+
+
+#-----------TEST
+#-----------TEST
+#-----------TEST
 
 def update_hearts():
     global lives
@@ -205,18 +198,24 @@ def update_hearts():
             hearts.remove(heart)
             continue
 
+        # --- COLLISION CALCULATION ---
         offset_x = heart.x - icarus_rect.x
         offset_y = heart.y - icarus_rect.y
 
+        # --- COLLISION CHECK (PUT IT HERE) ---
         if icarus_mask.overlap(heart_mask, (offset_x, offset_y)):
             hearts.remove(heart)
-
+            
+            sound_library.play("heart") #<----- new line
+            
             if lives < MAX_LIVES:
                 lives += 1
 
             continue
 
+        # --- DRAW HEART ---
         screen.blit(heart_image, heart)
+
 
 
 def draw_lives():
@@ -287,80 +286,12 @@ class PillarPair:
             or self.bottom_hitbox.colliderect(player_rect)
         )
 def reset_game():
-    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer
-    bird_spawn_timer = 0
-    bird_anim_timer = 0
-    bird_frame_index = 0
-    heart_timer = 0
+    global score, BG_SPEED, pillar_timer
     score = 0
     BG_SPEED = 300
     pillar_timer = 0
     pillars.clear()
-    hearts.clear() #toegevoegd
-    birds.clear() #toegevoegd
     icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
-
-def spawn_bird():
-    y = randrange(60, WINDOW_HEIGHT - 180)  # nooit in zee
-    rect = bird_frames[0].get_rect(midleft=(WINDOW_WIDTH + 50, y))
-    birds.append(rect)
-
-
-def update_birds():
-    global lives, hit_timer, state, record
-
-    for bird in birds[:]:
-        bird.x -= BIRD_SPEED * dt
-
-        if bird.right < 0:
-            birds.remove(bird)
-            continue
-
-        offset_x = bird.x - icarus_rect.x
-        offset_y = bird.y - icarus_rect.y
-
-        if hit_timer <= 0:
-            if icarus_mask.overlap(
-                bird_masks[bird_frame_index], (offset_x, offset_y)
-            ):
-                lives -= 1
-                hit_timer = HIT_COOLDOWN
-                birds.remove(bird)
-
-                # 🛑 Check voor game over
-                if lives <= 0:
-                    game_over()
-
-        screen.blit(bird_frames[bird_frame_index], bird)
-
-
-def draw_start():
-    infinite_background()
-    infinite_waves()
-    screen.blit(title_text, title_text.get_rect(center=(WINDOW_WIDTH // 2, 220)))
-    screen.blit(start_text, start_text.get_rect(center=(WINDOW_WIDTH // 2, 270)))
-
-
-def draw_game_over():
-    infinite_background()
-    infinite_waves()
-    screen.blit(game_over_text, game_over_text.get_rect(center=(WINDOW_WIDTH // 2, 200)))
-    screen.blit(
-        font.render(f"Score: {int(score)}", True, (255, 255, 255)),
-        (WINDOW_WIDTH // 2 - 80, 260),
-    )
-    screen.blit(
-        font.render(f"Record: {record}", True, (255, 215, 0)),
-        (WINDOW_WIDTH // 2 - 80, 300),
-    )
-    screen.blit(restart_text, restart_text.get_rect(center=(WINDOW_WIDTH // 2, 360)))
-
-def game_over():
-    global state, record
-    if score > record:
-        record = int(score)
-    state = GAME_OVER
-
 
 # ========================
 # MAIN LOOP
@@ -370,32 +301,10 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        if state == START and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            reset_game()
-            lives = MAX_LIVES
-            state = PLAYING
-
-        if state == GAME_OVER and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            reset_game()
-            lives = MAX_LIVES
-            state = PLAYING
-
-    if state == START:
-        draw_start()
-        pygame.display.flip()
-        dt = clock.tick(60) / 1000
-        continue
-
-    if state == GAME_OVER:
-        draw_game_over()
-        pygame.display.flip()
-        dt = clock.tick(60) / 1000
-        continue
-
     handle_keys()
 
     pillar_timer += dt
-    if pillar_timer >= max(2, 1.8 - score * 0.01):
+    if pillar_timer >= max(1.0, 1.8 - score * 0.01):
         gap = max(95, 180 - score * 0.15)
         pillars.append(PillarPair(WINDOW_WIDTH + 100, gap))
         pillar_timer = 0
@@ -404,13 +313,9 @@ while running:
     for pillar in pillars:
         pillar.update()
 
-        if pillar.collides(icarus_rect) and hit_timer <= 0:
-            lives -= 1
-            hit_timer = HIT_COOLDOWN
-
-            if lives <= 0:
-                if score > record:
-                    game_over()
+        if pillar.collides(icarus_rect):
+            sound_library.play("oof")  #<------ NEW LINE
+            reset_game()
             break
 
         if not pillar.passed and pillar.x + PILLAR_WIDTH < icarus_rect.x:
@@ -420,32 +325,27 @@ while running:
 
     pillars[:] = [p for p in pillars if p.x > -PILLAR_WIDTH]
 
-    bird_spawn_timer += dt
-    if bird_spawn_timer >= BIRD_SPAWN_TIME:
-        spawn_bird()
-        bird_spawn_timer = 0
-
-    bird_anim_timer += dt
-    if bird_anim_timer >= BIRD_ANIM_SPEED:
-        bird_anim_timer = 0
-        bird_frame_index = (bird_frame_index + 1) % len(bird_frames)
-
     load_level()
-    update_birds()
     # hit cooldown
     if hit_timer > 0:
         hit_timer -= dt
 
     # zee raakt → 1 leven verliezen
-    if check_wave_collision() and hit_timer <= 0:
-        lives -= 1
-        hit_timer = HIT_COOLDOWN
+    if check_wave_collision():                              
+        if not hit_wave:                                     #<----- NEW LINE
+            sound_library.play("splash")                     #<----- NEW LINE
+            hit_wave = True                                   #<----- NEW LINE
+
+        if hit_timer <= 0:
+            lives -= 1
+            hit_timer = HIT_COOLDOWN
+
+            sound_library.play("oof")                    #<-----NEWLINE
 
         if lives <= 0:
-            # update record als nodig
-            if score > record:
-                game_over()
-
+            running = False
+    else:                                                #<-----NEWLINE
+        hit_wave = False                                 #<-----NEWLINE
 
     score += dt * 20
 
