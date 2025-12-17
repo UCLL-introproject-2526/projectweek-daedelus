@@ -380,10 +380,6 @@ def load_level():
 
     update_powerups()
 
-    show_timer = 3
-
-    screen.blit(text_surface, text_rect)
-
     for pillar in pillars:
         pillar.draw()
 
@@ -620,6 +616,8 @@ while running:
                 lives = MAX_LIVES
                 score = 0
                 reset_game()
+                heart_timer = 0
+                powerup_timer = powerup_spawn_time / 2
                 state = PLAYING
 
         if state == LEVEL_COMPLETED and event.type == pygame.KEYDOWN:
