@@ -144,11 +144,17 @@ icarus_mask = pygame.mask.from_surface(icarus)
 icarus_shielded = pygame.image.load("Sprites/Icarus_shielded.png").convert_alpha()
 icarus_shielded = pygame.transform.scale(icarus_shielded, icarus.get_size())
 
-icarus_2hearts = pygame.image.load().convert_alpha()
+icarus_2hearts = pygame.image.load("Sprites/2_heart_Icarus.png").convert_alpha()
 icarus_2hearts_mask = pygame.mask.from_surface(icarus_2hearts)
 
-icarus_1heart = pygame.image.load().convert_alpha()
+icarus_1heart = pygame.image.load("Sprites/1_heart_Icarus.png").convert_alpha()
 icarus_1heart_mask = pygame.mask.from_surface(icarus_1heart)
+
+icarus_2hearts_shielded = pygame.image.load("Sprites/2_heart_Icarus_shielded.png").convert_alpha()
+icarus_2hearts_shielded_mask = pygame.mask.from_surface(icarus_2hearts)
+
+icarus_1heart_shielded = pygame.image.load("Sprites/1_heart_Icarus_shielded.png").convert_alpha()
+icarus_1heart_shielded_mask = pygame.mask.from_surface(icarus_1heart)
 
 game_over_img = pygame.image.load("Sprites/game_over3.png").convert_alpha()
 game_over_img = pygame.transform.scale(game_over_img, (600, 200))
@@ -405,18 +411,33 @@ def load_level():
     for pillar in pillars:
         pillar.draw()
 
-    # knipperen tijdens invincibility
+    # Bepaal welke Icarus sprite getoond moet worden
     if invincible_timer > 0:
-    # Laatste seconde → flikkeren
+        # Laatste seconde → flikkeren
         if invincible_timer <= SHIELD_WARNING_TIME:
             if int(invincible_timer * 10) % 2 == 0:
-                screen.blit(icarus_shielded, icarus_rect)
+                if lives == 2:
+                    screen.blit(icarus_2hearts_shielded, icarus_rect)
+                elif lives == 1:
+                    screen.blit(icarus_1heart_shielded, icarus_rect)
+                else:
+                    screen.blit(icarus_shielded, icarus_rect)
         else:
-            screen.blit(icarus_shielded, icarus_rect)
+            if lives == 2:
+                screen.blit(icarus_2hearts_shielded, icarus_rect)
+            elif lives == 1:
+                screen.blit(icarus_1heart_shielded, icarus_rect)
+            else:
+                screen.blit(icarus_shielded, icarus_rect)
     else:
         # normale hit-knipper
         if hit_timer <= 0 or int(hit_timer * 10) % 2 == 0:
-            screen.blit(icarus, icarus_rect)
+            if lives == 2:
+                screen.blit(icarus_2hearts, icarus_rect)
+            elif lives == 1:
+                screen.blit(icarus_1heart, icarus_rect)
+            else:
+                screen.blit(icarus, icarus_rect)
 
 
 
