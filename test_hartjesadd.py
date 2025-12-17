@@ -109,6 +109,8 @@ PLAYING = 1
 GAME_OVER = 2
 LEVEL_COMPLETED = 3
 
+game_over_timer = 0
+
 state = LEVEL_SELECT
 current_level = None
 record = 0
@@ -556,44 +558,54 @@ def update_birds():
 
 
 def draw_game_over():
-    # achtergrond zoals vroeger
+    global game_over_timer
+    game_over_timer += dt
+
+    # achtergrond
     infinite_background()
     infinite_waves()
 
-    # donkere overlay
+    # fade overlay
     overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
-    overlay.set_alpha(120)
+    alpha = min(180, int(game_over_timer * 120))
+    overlay.set_alpha(alpha)
     overlay.fill((0, 0, 0))
     screen.blit(overlay, (0, 0))
 
-    # 🖼️ GAME OVER AFBEELDING
-    go_rect = game_over_img.get_rect(
-        center=(WINDOW_WIDTH // 2, 120)
-    )
-    screen.blit(game_over_img, go_rect)
+    center_x = WINDOW_WIDTH // 2
 
-    # score
-    screen.blit(
-        font.render(f"Score: {int(score)}", True, (255, 255, 255)),
-        (WINDOW_WIDTH // 2 - 80, 260),
-    )
+    # 🟥 GAME OVER komt van boven
+    if game_over_timer > 0.4:
+        t = min(1, (game_over_timer - 0.4) / 0.8)
+        y = -200 + t * 320
+        go_rect = game_over_img.get_rect(center=(center_x, y))
+        screen.blit(game_over_img, go_rect)
 
-    # record
-    screen.blit(
-        font.render(f"Record: {record}", True, (255, 215, 0)),
-        (WINDOW_WIDTH // 2 - 80, 300),
-    )
+    # 🟨 Score
+    if game_over_timer > 1.5:
+        score_surf = font.render(f"Score: {int(score)}", True, (255, 255, 255))
+        screen.blit(score_surf, (center_x - score_surf.get_width() // 2, 260))
 
-    # ✅ DIT DEEL BLIJFT (zoals jij wilde)
-    screen.blit(
-        font.render("Press ESC for Exit or SPACE for Retry", True, (255, 255, 255)),
-        (50, 360)
-    )
+    # 🟨 Record
+    if game_over_timer > 2.0:
+        record_surf = font.render(f"Record: {record}", True, (255, 215, 0))
+        screen.blit(record_surf, (center_x - record_surf.get_width() // 2, 300))
+
+    # 🟩 Knipperende instructie (arcade-style)
+    if game_over_timer > 2.6:
+        if int(game_over_timer * 2) % 2 == 0:
+            info = font.render(
+                "Press SPACE to Retry or ESC to Exit",
+                True,
+                (200, 200, 200)
+            )
+            screen.blit(info, (center_x - info.get_width() // 2, 360))
 
 def game_over():
-    global state, record
+    global state, record, game_over_timer
     if score > record:
         record = int(score)
+    game_over_timer = 0
     state = GAME_OVER
 
 def draw_level_select():
@@ -700,7 +712,7 @@ while running:
                     state = PLAYING
 
 
-        if state == GAME_OVER and event.type == pygame.KEYDOWN:
+        if state == GAME_OVER and event.type == pygame.KEYDOWN and game_over_timer > 2.6:
             if event.key == pygame.K_SPACE:
                 reset_game()
                 lives = MAX_LIVES
