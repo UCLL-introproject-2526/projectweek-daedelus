@@ -73,8 +73,8 @@ LEVEL_MEDIUM = {
 LEVEL_IMPOSSIBLE = {
     "BG_SPEED": 700,
     "PILLAR_SPEED": 700,
-    "BIRD_SPAWN": 0.1,
-    "PILLAR_SPAWN": 0.5,
+    "BIRD_SPAWN": 0.4,
+    "PILLAR_SPAWN": 0.7,
     "POWERUP_SPAWN": 20,
     "SCORE_LIMIT": None,
     "HEART_SPAWN_TIME": 30,
@@ -479,16 +479,19 @@ def draw_start():
 def draw_game_over():
     infinite_background()
     infinite_waves()
-    screen.blit(game_over_text, game_over_text.get_rect(center=(WINDOW_WIDTH // 2, 200)))
+    screen.blit(game_over_text, game_over_text.get_rect(center=(WINDOW_WIDTH // 2, 120)))
     screen.blit(
         font.render(f"Score: {int(score)}", True, (255, 255, 255)),
-        (WINDOW_WIDTH // 2 - 80, 260),
+        (WINDOW_WIDTH // 2 - 80, 180),
     )
     screen.blit(
         font.render(f"Record: {record}", True, (255, 215, 0)),
-        (WINDOW_WIDTH // 2 - 80, 300),
+        (WINDOW_WIDTH // 2 - 80, 240),
     )
-    screen.blit(restart_text, restart_text.get_rect(center=(WINDOW_WIDTH // 2, 360)))
+    screen.blit(
+        font.render("Press ESC for Exit or SPACE for Retry", True, (255, 255, 255)),
+        (50, 300)
+    )
 
 def game_over():
     global state, record
@@ -591,10 +594,15 @@ while running:
                     state = PLAYING
 
 
-        if state == GAME_OVER and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            reset_game()
-            lives = MAX_LIVES
-            state = PLAYING
+        if state == GAME_OVER and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                reset_game()
+                lives = MAX_LIVES
+                state = PLAYING
+            if event.key == pygame.K_ESCAPE:
+                state = LEVEL_SELECT
+                current_level = None
+
 
     if state == LEVEL_SELECT:
         draw_level_select()
