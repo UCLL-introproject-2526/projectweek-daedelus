@@ -285,13 +285,17 @@ class SoundLibrary:
 
         bird_sound = pygame.mixer.Sound("Sound/Soundeffect/Bird.ogg")
         bird_sound.set_volume(1.0)
+        
+        powerup_sound = pygame.mixer.Sound("Sound\Soundeffect\Powerup.ogg")
+        powerup_sound.set_volume(1.0)
 
         self.sounds = {
             "heart": heart_sound,
             "splash": splash_sound,
             "oof": oof_sound, 
             "hit": hit_sound,
-            "bird": bird_sound
+            "bird": bird_sound,
+            "powerup": powerup_sound
             
             
         }
@@ -359,6 +363,7 @@ def update_powerups():
         offset_y = p.y - icarus_rect.y
 
         if icarus_mask.overlap(powerup_mask, (offset_x, offset_y)):
+            sound_library.play("powerup")
             invincible_timer = INVINCIBILITY_DURATION
             powerups.remove(p)
             continue
