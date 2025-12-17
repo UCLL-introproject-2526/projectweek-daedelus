@@ -5,6 +5,9 @@ from random import randrange
 pygame.init()
 pygame.mixer.init()
 
+# ========================
+# CONSTANTEN
+# ========================
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 UI_BAR = 50
@@ -13,37 +16,110 @@ BG_SPEED = 300
 WAVE_SPEED = 200
 PILLAR_SPEED = 300
 
+MAX_LIVES = 3
+lives = 3
+
+HIT_COOLDOWN = 1.2
+hit_timer = 0
+
+# Vogel
+BIRD_SPEED = 500
+BIRD_SPAWN_TIME = 2.0
+BIRD_ANIM_SPEED = 0.15
+
+SUN_HEIGHT = 100
+SUN_DAMAGE_Y = UI_BAR
+SUN_TOLERANCE = 25  # hoeveel pixels je mag "indringen" zonder damage
+
+INVINCIBILITY_DURATION = 5.0
+invincible_timer = 0
+
+# ========================
+# SETUP
+# ========================
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-pygame.display.set_caption("bang bang")
+pygame.display.set_caption('Flight of Icarus')
 clock = pygame.time.Clock()
 running = True
 dt = 0
 score = 0
 
-# Music
+# ========================
+# GAME STATES
+# ========================
+START = 0
+PLAYING = 1
+GAME_OVER = 2
+
+state = START
+record = 0
+
+# ========================
+# MUSIC
+# ========================
 pygame.mixer.music.load("Sound/Music/2.ogg")
 pygame.mixer.music.play(-1)
 
-# Fonts
+# ========================
+# FONTS & IMAGES
+# ========================
 score_font = pygame.font.Font("fonts/Cinzel-VariableFont_wght.ttf", 24)
-font = pygame.font.Font("fonts/Cinzel-VariableFont_wght.ttf", 30)
+font = pygame.font.Font('fonts/Cinzel-VariableFont_wght.ttf', 30)
 
-# Background
 Ui = pygame.image.load("Sprites/UI.png").convert_alpha()
 background = pygame.image.load("Sprites/background.png").convert()
-background = pygame.transform.scale(
-    background, (WINDOW_WIDTH, WINDOW_HEIGHT - UI_BAR)
-)
-bg_x = 0
+background = pygame.transform.scale(background, (WINDOW_WIDTH, WINDOW_HEIGHT + UI_BAR))
 
-waves = pygame.image.load("Sprites/waves.png").convert()
-waves = pygame.transform.scale(waves, (WINDOW_WIDTH, (WINDOW_HEIGHT - UI_BAR) // 4))
+waves = pygame.image.load("Sprites/waves.png").convert_alpha()
+waves = pygame.transform.scale(waves, (WINDOW_WIDTH, WINDOW_HEIGHT // 4))
+waves_mask = pygame.mask.from_surface(waves)
+
+heart_image = pygame.image.load('Sprites/heart.png').convert_alpha()
+heart_mask = pygame.mask.from_surface(heart_image)
+
+icarus = pygame.image.load('Sprites/icarus_sprite.png').convert_alpha()
+icarus_rect = icarus.get_rect(midleft=(0, WINDOW_HEIGHT / 2))
+icarus_mask = pygame.mask.from_surface(icarus)
+
+sun_surface = pygame.Surface((WINDOW_WIDTH, SUN_HEIGHT), pygame.SRCALPHA)
+sun_surface.fill((255, 200, 0, 180))  # zelfde kleur als glow
+sun_mask = pygame.mask.from_surface(sun_surface)
+
+powerup_image = pygame.image.load("Sprites/powerup_veer.png").convert_alpha()
+powerup_mask = pygame.mask.from_surface(powerup_image)
+
+# ========================
+# TEKST
+# ========================
+text_surface = font.render(
+    'The sea waits below. The sun burns above.',
+    True,
+    (212, 175, 55)
+)
+text_rect = text_surface.get_rect(center=(WINDOW_WIDTH / 2, 100))
+
+# ========================
+# TEKST 2
+# ========================
+title_text = font.render("Flight of Icarus", True, (212, 175, 55))
+start_text = font.render("Press SPACE to start", True, (255, 255, 255))
+
+game_over_text = font.render("GAME OVER", True, (200, 50, 50))
+restart_text = font.render("Press SPACE to restart", True, (255, 255, 255))
+
+# ========================
+# BACKGROUND VARS
+# ========================
+bg_x = 0
 waves_x = 0
 
-# Player
-icarus = pygame.image.load("Sprites/icarus_sprite.png").convert_alpha()
-icarus_rect = icarus.get_rect(midleft=(80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2))
-icarus_mask = pygame.mask.from_surface(icarus)
+# ========================
+# HEART PICKUPS
+# ========================
+hearts = []
+heart_speed = 200
+heart_spawn_time = 5
+heart_timer = 0
 
 # Pillars
 pillar_img = pygame.image.load("Sprites/zuilen.png").convert_alpha()
@@ -54,24 +130,34 @@ PILLAR_WIDTH = pillar_img.get_width()
 pillars = []
 pillar_timer = 0
 
-# Text
-text_surface = font.render(
-    "The sea waits below. The sun burns above.",
-    True,
-    (212, 175, 55)
-)
-text_rect = text_surface.get_rect(center=(WINDOW_WIDTH // 2, UI_BAR + 40))
+powerups = []
+powerup_speed = 200
+powerup_spawn_time = 15
+powerup_timer = 0
+# ========================
+# VOGEL FRAMES (GESCHAALD)
+# ========================
+bird_frames = []
+for img in [
+    "Sprites/bird1.png",
+    "Sprites/bird2.png",
+]:
+    image = pygame.image.load(img).convert_alpha()
+    image = pygame.transform.scale(
+        image, (image.get_width() // 2, image.get_height() // 2)
+    )
+    bird_frames.append(image)
 
+bird_masks = [pygame.mask.from_surface(f) for f in bird_frames]
 
-def reset_game():
-    global score, BG_SPEED, pillar_timer
-    score = 0
-    BG_SPEED = 300
-    pillar_timer = 0
-    pillars.clear()
-    icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
+birds = []
+bird_spawn_timer = 0
+bird_anim_timer = 0
+bird_frame_index = 0
 
-
+# ========================
+# FUNCTIES
+# ========================
 def handle_keys():
     keys = pygame.key.get_pressed()
     speed = 300 * dt
@@ -91,8 +177,8 @@ def infinite_background():
     bg_x -= BG_SPEED * dt
     if bg_x <= -WINDOW_WIDTH:
         bg_x = 0
-    screen.blit(background, (bg_x, UI_BAR))
-    screen.blit(background, (bg_x + WINDOW_WIDTH, UI_BAR))
+    screen.blit(background, (bg_x, 0))
+    screen.blit(background, (bg_x + WINDOW_WIDTH, 0))
 
 
 def infinite_waves():
@@ -100,10 +186,127 @@ def infinite_waves():
     waves_x -= WAVE_SPEED * dt
     if waves_x <= -WINDOW_WIDTH:
         waves_x = 0
-    y = WINDOW_HEIGHT - waves.get_height()
-    screen.blit(waves, (waves_x, y))
-    screen.blit(waves, (waves_x + WINDOW_WIDTH, y))
+    screen.blit(waves, (waves_x, WINDOW_HEIGHT - 100))
+    screen.blit(waves, (waves_x + WINDOW_WIDTH, WINDOW_HEIGHT - 100))
 
+
+def check_wave_collision():
+    wave_y = WINDOW_HEIGHT - 100
+
+    offset_x1 = waves_x - icarus_rect.x
+    offset_y1 = wave_y - icarus_rect.y
+    if icarus_mask.overlap(waves_mask, (offset_x1, offset_y1)):
+        return True
+
+    offset_x2 = (waves_x + WINDOW_WIDTH) - icarus_rect.x
+    offset_y2 = wave_y - icarus_rect.y
+    if icarus_mask.overlap(waves_mask, (offset_x2, offset_y2)):
+        return True
+
+    return False
+
+def check_sun_collision():
+    penetration = (UI_BAR + SUN_HEIGHT) - icarus_rect.top
+    return penetration > SUN_TOLERANCE
+
+
+def spawn_heart():
+    heart_rect = heart_image.get_rect(
+        midleft=(WINDOW_WIDTH + 50, randrange(75, WINDOW_HEIGHT - 100))
+    )
+    hearts.append(heart_rect)
+
+
+def update_hearts():
+    global lives
+
+    for heart in hearts[:]:
+        heart.x -= heart_speed * dt
+
+        if heart.right < 0:
+            hearts.remove(heart)
+            continue
+
+        offset_x = heart.x - icarus_rect.x
+        offset_y = heart.y - icarus_rect.y
+
+        if icarus_mask.overlap(heart_mask, (offset_x, offset_y)):
+            hearts.remove(heart)
+
+            if lives < MAX_LIVES:
+                lives += 1
+
+            continue
+
+        screen.blit(heart_image, heart)
+
+def draw_sun_glow():
+    for y in range(SUN_HEIGHT):
+        alpha = int(180 * (1 - y / SUN_HEIGHT))  # sterk bovenaan, zwakker naar beneden
+        color = (255, 170, 0, alpha)  # oranje/geel
+        glow_line = pygame.Surface((WINDOW_WIDTH, 1), pygame.SRCALPHA)
+        glow_line.fill(color)
+        screen.blit(glow_line, (0, SUN_DAMAGE_Y + y))
+
+def draw_lives():
+    for i in range(lives):
+        screen.blit(heart_image, (WINDOW_WIDTH - 50 * (i + 1), 0))
+
+def spawn_powerup():
+    rect = powerup_image.get_rect(
+        midleft=(WINDOW_WIDTH + 50, randrange(UI_BAR + 60, WINDOW_HEIGHT - 120))
+    )
+    powerups.append(rect)
+
+def update_powerups():
+    global invincible_timer
+
+    for p in powerups[:]:
+        p.x -= powerup_speed * dt
+
+        if p.right < 0:
+            powerups.remove(p)
+            continue
+
+        offset_x = p.x - icarus_rect.x
+        offset_y = p.y - icarus_rect.y
+
+        if icarus_mask.overlap(powerup_mask, (offset_x, offset_y)):
+            invincible_timer = INVINCIBILITY_DURATION
+            powerups.remove(p)
+            continue
+
+        screen.blit(powerup_image, p)
+
+def load_level():
+    infinite_background()
+    infinite_waves()
+
+    draw_sun_glow()
+
+    update_powerups()
+
+    screen.blit(text_surface, text_rect)
+
+    for pillar in pillars:
+        pillar.draw()
+
+    # knipperen tijdens invincibility
+    if hit_timer <= 0 or int(hit_timer * 10) % 2 == 0:
+        screen.blit(icarus, icarus_rect)
+
+    if invincible_timer > 0:
+        glow = pygame.Surface(icarus_rect.size, pygame.SRCALPHA)
+        glow.fill((255, 255, 255, 80))
+        screen.blit(glow, icarus_rect.topleft)
+
+
+    screen.blit(Ui, (0, 0))
+
+    score_text = score_font.render(f"Score: {int(score)}", True, (255, 255, 255))
+    screen.blit(score_text, (10, 10))
+
+    draw_lives()
 
 class PillarPair:
     def __init__(self, x, gap_height):
@@ -148,92 +351,195 @@ class PillarPair:
             self.top_hitbox.colliderect(player_rect)
             or self.bottom_hitbox.colliderect(player_rect)
         )
+def reset_game():
+    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer, invincible_timer, powerup_timer
+    bird_spawn_timer = 0
+    bird_anim_timer = 0
+    bird_frame_index = 0
+    heart_timer = 0
+    score = 0
+    BG_SPEED = 300
+    pillar_timer = 0
+    invincible_timer = 0
+    powerup_timer = 0
+
+    pillars.clear()
+    hearts.clear() #toegevoegd
+    birds.clear() #toegevoegd
+    powerups.clear()
+    icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
+
+def spawn_bird():
+    y = randrange(60, WINDOW_HEIGHT - 180)  # nooit in zee
+    rect = bird_frames[0].get_rect(midleft=(WINDOW_WIDTH + 50, y))
+    birds.append(rect)
 
 
-# Hearts
-heart_image = pygame.image.load("Sprites/heart.png").convert_alpha()
-heart_mask = pygame.mask.from_surface(heart_image)
-hearts = []
-heart_speed = 200
-heart_spawn_time = 6
-heart_timer = 0
+def update_birds():
+    global lives, hit_timer, state, record
 
+    for bird in birds[:]:
+        bird.x -= BIRD_SPEED * dt
 
-def spawn_heart():
-    heart_rect = heart_image.get_rect(
-        midleft=(WINDOW_WIDTH + 100, randrange(UI_BAR + 60, WINDOW_HEIGHT - 60))
-    )
-    hearts.append(heart_rect)
-
-
-def update_hearts():
-    for heart in hearts[:]:
-        heart.x -= heart_speed * dt
-        if heart.right < 0:
-            hearts.remove(heart)
+        if bird.right < 0:
+            birds.remove(bird)
             continue
 
-        offset = (heart.x - icarus_rect.x, heart.y - icarus_rect.y)
-        if icarus_mask.overlap(heart_mask, offset):
-            hearts.remove(heart)
-            continue
+        offset_x = bird.x - icarus_rect.x
+        offset_y = bird.y - icarus_rect.y
 
-        screen.blit(heart_image, heart)
+        if hit_timer <= 0:
+            if icarus_mask.overlap(
+                bird_masks[bird_frame_index], (offset_x, offset_y)
+            ):
+                lives -= 1
+                hit_timer = HIT_COOLDOWN
+                birds.remove(bird)
 
+                # 🛑 Check voor game over
+                if lives <= 0:
+                    game_over()
 
-def load_level():
+        screen.blit(bird_frames[bird_frame_index], bird)
+
+    
+
+def draw_start():
     infinite_background()
     infinite_waves()
-
-    for pillar in pillars:
-        pillar.draw()
-
-    for heart in hearts:
-        screen.blit(heart_image, heart)
-
-    screen.blit(text_surface, text_rect)
-    screen.blit(icarus, icarus_rect)
-    screen.blit(Ui, (0, 0))
-
-    score_text = score_font.render(f"Score: {int(score)}", True, (255, 255, 255))
-    screen.blit(score_text, (10, UI_BAR // 2))
+    screen.blit(title_text, title_text.get_rect(center=(WINDOW_WIDTH // 2, 220)))
+    screen.blit(start_text, start_text.get_rect(center=(WINDOW_WIDTH // 2, 270)))
 
 
+def draw_game_over():
+    infinite_background()
+    infinite_waves()
+    screen.blit(game_over_text, game_over_text.get_rect(center=(WINDOW_WIDTH // 2, 200)))
+    screen.blit(
+        font.render(f"Score: {int(score)}", True, (255, 255, 255)),
+        (WINDOW_WIDTH // 2 - 80, 260),
+    )
+    screen.blit(
+        font.render(f"Record: {record}", True, (255, 215, 0)),
+        (WINDOW_WIDTH // 2 - 80, 300),
+    )
+    screen.blit(restart_text, restart_text.get_rect(center=(WINDOW_WIDTH // 2, 360)))
+
+def game_over():
+    global state, record
+    if score > record:
+        record = int(score)
+    state = GAME_OVER
+
+
+# ========================
+# MAIN LOOP
+# ========================
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    dt = clock.tick(60) / 1000
+        if state == START and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            reset_game()
+            lives = MAX_LIVES
+            state = PLAYING
+
+        if state == GAME_OVER and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            reset_game()
+            lives = MAX_LIVES
+            state = PLAYING
+
+    if state == START:
+        draw_start()
+        pygame.display.flip()
+        dt = clock.tick(60) / 1000
+        continue
+
+    if state == GAME_OVER:
+        draw_game_over()
+        pygame.display.flip()
+        dt = clock.tick(60) / 1000
+        continue
+
     handle_keys()
 
+    powerup_timer += dt
+    if powerup_timer >= powerup_spawn_time:
+        spawn_powerup()
+        powerup_timer = 0
+
     pillar_timer += dt
-    if pillar_timer >= max(1.0, 1.8 - score * 0.01):
+    if pillar_timer >= max(2, 1.8 - score * 0.01):
         gap = max(95, 180 - score * 0.15)
         pillars.append(PillarPair(WINDOW_WIDTH + 100, gap))
         pillar_timer = 0
+
+    # ⬇️ ELKE FRAME
+    for pillar in pillars:
+        pillar.update()
+
+        if pillar.collides(icarus_rect) and hit_timer <= 0:
+            lives -= 1
+            hit_timer = HIT_COOLDOWN
+
+            if lives <= 0:
+                if score > record:
+                    game_over()
+            break
+
+        if not pillar.passed and pillar.x + PILLAR_WIDTH < icarus_rect.x:
+            pillar.passed = True
+            score += 10
+
+
+    pillars[:] = [p for p in pillars if p.x > -PILLAR_WIDTH]
+
+    bird_spawn_timer += dt
+    if bird_spawn_timer >= BIRD_SPAWN_TIME:
+        spawn_bird()
+        bird_spawn_timer = 0
+
+    bird_anim_timer += dt
+    if bird_anim_timer >= BIRD_ANIM_SPEED:
+        bird_anim_timer = 0
+        bird_frame_index = (bird_frame_index + 1) % len(bird_frames)
+
+    load_level()
+    update_birds()
+    # hit cooldown
+    if hit_timer > 0:
+        hit_timer -= dt
+
+    if check_sun_collision() and hit_timer <= 0 and invincible_timer <= 0:
+
+        lives -= 1
+        hit_timer = HIT_COOLDOWN 
+
+    # zee raakt → 1 leven verliezen
+    if check_wave_collision() and hit_timer <= 0 and invincible_timer <= 0:
+        lives -= 1
+        hit_timer = HIT_COOLDOWN
+
+        if lives <= 0:
+            # update record als nodig
+            if score > record:
+                game_over()
+
+
+    score += dt * 20
 
     heart_timer += dt
     if heart_timer >= heart_spawn_time:
         spawn_heart()
         heart_timer = 0
 
-    BG_SPEED *= 1.00015
-    score += dt * 20
-
-    for pillar in pillars:
-        pillar.update()
-        if pillar.collides(icarus_rect):
-            reset_game()
-            break
-        if not pillar.passed and pillar.x + PILLAR_WIDTH < icarus_rect.x:
-            pillar.passed = True
-            score += 10
-
     update_hearts()
-    pillars[:] = [p for p in pillars if p.x > -PILLAR_WIDTH]
 
-    load_level()
+    if invincible_timer > 0:
+        invincible_timer -= dt
+
     pygame.display.flip()
+    dt = clock.tick(60) / 1000
 
 pygame.quit()
