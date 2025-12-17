@@ -380,10 +380,6 @@ def load_level():
 
     update_powerups()
 
-    show_timer = 3
-
-    screen.blit(text_surface, text_rect)
-
     for pillar in pillars:
         pillar.draw()
 
