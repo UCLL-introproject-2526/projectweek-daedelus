@@ -42,6 +42,7 @@ LEVEL_INTRO = {
     "PILLAR_SPEED": 250,
     "BIRD_SPAWN": 3.0,
     "PILLAR_SPAWN": 2,
+    "POWERUP_SPAWN": 12.0,
 }
 
 LEVEL_EASY = {
@@ -49,6 +50,7 @@ LEVEL_EASY = {
     "PILLAR_SPEED": 400,
     "BIRD_SPAWN": 1.3,
     "PILLAR_SPAWN": 1.7,
+    "POWERUP_SPAWN": 15.0,
 }
 
 LEVEL_MEDIUM = {
@@ -56,6 +58,7 @@ LEVEL_MEDIUM = {
     "PILLAR_SPEED": 550,
     "BIRD_SPAWN": 0.7,
     "PILLAR_SPAWN": 1,
+    "POWERUP_SPAWN": 20.0,
 }
 
 LEVEL_IMPOSSIBLE = {
@@ -63,6 +66,7 @@ LEVEL_IMPOSSIBLE = {
     "PILLAR_SPEED": 700,
     "BIRD_SPAWN": 0.1,
     "PILLAR_SPAWN": 0.5,
+    "POWERUP_SPAWN": 30.0,
 }
 
 # ========================
@@ -117,6 +121,10 @@ heart_mask = pygame.mask.from_surface(heart_image)
 icarus = pygame.image.load('Sprites/icarus_sprite.png').convert_alpha()
 icarus_rect = icarus.get_rect(midleft=(0, WINDOW_HEIGHT / 2))
 icarus_mask = pygame.mask.from_surface(icarus)
+
+icarus_shielded = pygame.image.load("Sprites/Icarus_shielded.png").convert_alpha()
+icarus_shielded = pygame.transform.scale(icarus_shielded, icarus.get_size())
+
 
 sun_surface = pygame.Surface((WINDOW_WIDTH, SUN_HEIGHT), pygame.SRCALPHA)
 sun_surface.fill((255, 200, 0, 180))  # zelfde kleur als glow
@@ -329,13 +337,13 @@ def load_level():
         pillar.draw()
 
     # knipperen tijdens invincibility
-    if hit_timer <= 0 or int(hit_timer * 10) % 2 == 0:
-        screen.blit(icarus, icarus_rect)
-
     if invincible_timer > 0:
-        glow = pygame.Surface(icarus_rect.size, pygame.SRCALPHA)
-        glow.fill((255, 255, 255, 80))
-        screen.blit(glow, icarus_rect.topleft)
+        screen.blit(icarus_shielded, icarus_rect)
+    else:
+        if hit_timer <= 0 or int(hit_timer * 10) % 2 == 0:
+            screen.blit(icarus, icarus_rect)
+
+
 
 
     screen.blit(Ui, (0, 0))
@@ -392,7 +400,7 @@ class PillarPair:
             or self.bottom_hitbox.colliderect(player_rect)
         )
 def reset_game():
-    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer, score, pillar_timer
+    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer, score, pillar_timer, powerup_timer, invincible_timer
     bird_spawn_timer = 0
     bird_anim_timer = 0
     bird_frame_index = 0
@@ -428,7 +436,7 @@ def update_birds():
         offset_x = bird.x - icarus_rect.x
         offset_y = bird.y - icarus_rect.y
 
-        if hit_timer <= 0:
+        if hit_timer <= 0 and invincible_timer <= 0:
             if icarus_mask.overlap(
                 bird_masks[bird_frame_index], (offset_x, offset_y)
             ):
@@ -513,6 +521,7 @@ while running:
                 PILLAR_SPEED = current_level["PILLAR_SPEED"]
                 BIRD_SPAWN_TIME = current_level["BIRD_SPAWN"]
                 PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
+                powerup_spawn_time = current_level["POWERUP_SPAWN"]
                 lives = MAX_LIVES
                 score = 0
                 reset_game()
@@ -552,7 +561,7 @@ while running:
     for pillar in pillars:
         pillar.update()
 
-        if pillar.collides(icarus_rect) and hit_timer <= 0:
+        if pillar.collides(icarus_rect) and hit_timer <= 0 and invincible_timer <= 0:
             lives -= 1
             hit_timer = HIT_COOLDOWN
 
@@ -583,6 +592,7 @@ while running:
     # hit cooldown
     if hit_timer > 0:
         hit_timer -= dt
+
 
     if check_sun_collision() and hit_timer <= 0 and invincible_timer <= 0:
 
