@@ -79,7 +79,7 @@ LEVEL_IMPOSSIBLE = {
     "PILLAR_SPAWN": 0.7,
     "POWERUP_SPAWN": 20,
     "SCORE_LIMIT": None,
-    "HEART_SPAWN_TIME": 30,
+    "HEART_SPAWN_TIME": 25,
 }
 
 # ========================
