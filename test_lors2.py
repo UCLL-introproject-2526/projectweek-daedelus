@@ -57,6 +57,7 @@ record = 0
 # MUSIC
 # ========================
 pygame.mixer.music.load("Sound/Music/2.ogg")
+pygame.mixer.music.set_volume(0.3)
 pygame.mixer.music.play(-1)
 
 # ========================
@@ -220,7 +221,7 @@ class SoundLibrary:
         splash_sound.set_volume(1.0)
 
         oof_sound = pygame.mixer.Sound("Sound/Soundeffect/Oof.ogg")
-        oof_sound.set_volume(1.0)
+        oof_sound.set_volume(0.5)
 
         hit_sound = pygame.mixer.Sound("Sound\Soundeffect\Hit.ogg")
         hit_sound.set_volume(1.0)
@@ -508,6 +509,7 @@ while running:
 
     if check_sun_collision() and hit_timer <= 0:
         lives -= 1
+        sound_library.play("oof")
         hit_timer = HIT_COOLDOWN 
 
     # zee raakt → 1 leven verliezen
