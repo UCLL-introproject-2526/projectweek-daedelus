@@ -55,7 +55,7 @@ LEVEL_EASY = {
     "BIRD_SPAWN": 1.3,
     "PILLAR_SPAWN": 1.7,
     "POWERUP_SPAWN": 15.0,
-    "SCORE_LIMIT": 2000
+    "SCORE_LIMIT": 200
 }
 
 LEVEL_MEDIUM = {
@@ -97,6 +97,7 @@ score = 0
 LEVEL_SELECT = 0
 PLAYING = 1
 GAME_OVER = 2
+LEVEL_COMPLETED = 3
 
 state = LEVEL_SELECT
 current_level = None
@@ -496,6 +497,21 @@ def draw_level_select():
     screen.blit(font.render(Game_level3, True, (200,200,200)), (260, 280))
     screen.blit(font.render(Game_level4, True, (200,200,200)), (260, 320))
 
+def draw_level_completed():
+    infinite_background()
+    infinite_waves()
+    screen.blit(
+        font.render("Level Completed!", True, (212, 175, 55)),
+        (WINDOW_WIDTH // 2 - 120, 180)
+    )
+    screen.blit(
+        font.render(f"Score: {int(score)}", True, (255, 255, 255)),
+        (WINDOW_WIDTH // 2 - 80, 240)
+    )
+    screen.blit(
+        font.render("Press ESC for Exit or SPACE for Next Level", True, (255, 255, 255)),
+        (50, 300)
+    )
 
 
 # ========================
@@ -536,6 +552,35 @@ while running:
                 reset_game()
                 state = PLAYING
 
+        if state == LEVEL_COMPLETED and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:  # Exit
+                state = LEVEL_SELECT
+                current_level = None
+            if event.key == pygame.K_SPACE:  # Next level
+                if Level_Shown == Game_level1:
+                    current_level = LEVEL_EASY
+                    Level_Shown = Game_level2
+                elif Level_Shown == Game_level2:
+                    current_level = LEVEL_MEDIUM
+                    Level_Shown = Game_level3
+                elif Level_Shown == Game_level3:
+                    current_level = LEVEL_IMPOSSIBLE
+                    Level_Shown = Game_level4
+                else:
+                    state = LEVEL_SELECT
+                    current_level = None
+                if current_level:
+                    BG_SPEED = current_level["BG_SPEED"]
+                    PILLAR_SPEED = current_level["PILLAR_SPEED"]
+                    BIRD_SPAWN_TIME = current_level["BIRD_SPAWN"]
+                    PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
+                    powerup_spawn_time = current_level["POWERUP_SPAWN"]
+                    LEVEL_SCORE_LIMIT = current_level["SCORE_LIMIT"]
+                    lives = MAX_LIVES
+                    reset_game()
+                    state = PLAYING
+
+
         if state == GAME_OVER and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             reset_game()
             lives = MAX_LIVES
@@ -552,6 +597,13 @@ while running:
         pygame.display.flip()
         dt = clock.tick(60) / 1000
         continue
+
+    if state == LEVEL_COMPLETED:
+        draw_level_completed()
+        pygame.display.flip()
+        dt = clock.tick(60) / 1000
+        continue
+
 
     handle_keys()
 
@@ -621,7 +673,7 @@ while running:
 
     score += dt * 20
     if LEVEL_SCORE_LIMIT is not None and score >= LEVEL_SCORE_LIMIT:
-        game_over()   # of later: LEVEL_COMPLETED
+        state = LEVEL_COMPLETED
 
     heart_timer += dt
     if heart_timer >= heart_spawn_time:
