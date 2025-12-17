@@ -729,7 +729,6 @@ while running:
             pillar.passed = True
             score += 10
 
-
     pillars[:] = [p for p in pillars if p.x > -PILLAR_WIDTH]
 
     bird_spawn_timer += dt
@@ -747,7 +746,6 @@ while running:
     # hit cooldown
     if hit_timer > 0:
         hit_timer -= dt
-
 
     if check_sun_collision() and hit_timer <= 0 and invincible_timer <= 0:
 
@@ -767,7 +765,6 @@ while running:
             # update record als nodig
             if score > record:
                 game_over()
-
 
     score += dt * 20
     if LEVEL_SCORE_LIMIT is not None and score >= LEVEL_SCORE_LIMIT:
