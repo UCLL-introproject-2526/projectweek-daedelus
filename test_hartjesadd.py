@@ -534,7 +534,6 @@ def draw_game_over():
     # achtergrond zoals vroeger
     infinite_background()
     infinite_waves()
-    draw_sun_glow()
 
     # donkere overlay
     overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
