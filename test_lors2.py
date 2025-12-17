@@ -509,6 +509,7 @@ while running:
 
     if check_sun_collision() and hit_timer <= 0:
         lives -= 1
+        sound_library.play("oof")
         hit_timer = HIT_COOLDOWN 
 
     # zee raakt → 1 leven verliezen
