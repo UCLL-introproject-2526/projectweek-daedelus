@@ -22,6 +22,8 @@ lives = 3
 HIT_COOLDOWN = 1.2
 hit_timer = 0
 
+PILLAR_SPAWN_TIME = 2.0
+
 # Vogel
 BIRD_SPEED = 500
 BIRD_SPAWN_TIME = 2.0
@@ -31,12 +33,44 @@ SUN_HEIGHT = 100
 SUN_DAMAGE_Y = UI_BAR
 SUN_TOLERANCE = 25  # hoeveel pixels je mag "indringen" zonder damage
 
-INVINCIBILITY_DURATION = 5.0
-invincible_timer = 0
+# Levels
+
+LEVEL_INTRO = {
+    "BG_SPEED": 250,
+    "PILLAR_SPEED": 250,
+    "BIRD_SPAWN": 3.0,
+    "PILLAR_SPAWN": 2,
+}
+
+LEVEL_EASY = {
+    "BG_SPEED": 400,
+    "PILLAR_SPEED": 400,
+    "BIRD_SPAWN": 1.3,
+    "PILLAR_SPAWN": 1.7,
+}
+
+LEVEL_MEDIUM = {
+    "BG_SPEED": 550,
+    "PILLAR_SPEED": 550,
+    "BIRD_SPAWN": 0.7,
+    "PILLAR_SPAWN": 1,
+}
+
+LEVEL_IMPOSSIBLE = {
+    "BG_SPEED": 700,
+    "PILLAR_SPEED": 700,
+    "BIRD_SPAWN": 0.1,
+    "PILLAR_SPAWN": 0.5,
+}
 
 # ========================
 # SETUP
 # ========================
+Level_Shown = None
+Game_level1 = "1 - Intro"
+Game_level2 = "2 - Easy"
+Game_level3 ="3 - Medium"
+Game_level4 ="4 - Impossible"
 screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 pygame.display.set_caption('Flight of Icarus')
 clock = pygame.time.Clock()
@@ -47,11 +81,12 @@ score = 0
 # ========================
 # GAME STATES
 # ========================
-START = 0
+LEVEL_SELECT = 0
 PLAYING = 1
 GAME_OVER = 2
 
-state = START
+state = LEVEL_SELECT
+current_level = None
 record = 0
 
 # ========================
@@ -302,9 +337,12 @@ def load_level():
 
 
     screen.blit(Ui, (0, 0))
+    Level_Ui = font.render(Level_Shown, True, (255,255,255), )
 
     score_text = score_font.render(f"Score: {int(score)}", True, (255, 255, 255))
     screen.blit(score_text, (10, 10))
+    screen.blit(Level_Ui, (WINDOW_WIDTH/2 - 100, 10))
+
 
     draw_lives()
 
@@ -352,7 +390,7 @@ class PillarPair:
             or self.bottom_hitbox.colliderect(player_rect)
         )
 def reset_game():
-    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer, invincible_timer, powerup_timer
+    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer, score, pillar_timer
     bird_spawn_timer = 0
     bird_anim_timer = 0
     bird_frame_index = 0
@@ -370,7 +408,7 @@ def reset_game():
     icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
 
 def spawn_bird():
-    y = randrange(60, WINDOW_HEIGHT - 180)  # nooit in zee
+    y = randrange(60, WINDOW_HEIGHT - 120)  # nooit in zee
     rect = bird_frames[0].get_rect(midleft=(WINDOW_WIDTH + 50, y))
     birds.append(rect)
 
@@ -431,6 +469,17 @@ def game_over():
         record = int(score)
     state = GAME_OVER
 
+def draw_level_select():
+    infinite_background()
+    infinite_waves()
+
+    screen.blit(font.render("Kies een level:", True, (255,255,255)), (260, 150))
+    screen.blit(font.render(Game_level1, True, (200,200,200)), (260, 200))
+    screen.blit(font.render(Game_level2, True, (200,200,200)), (260, 240))
+    screen.blit(font.render(Game_level3, True, (200,200,200)), (260, 280))
+    screen.blit(font.render(Game_level4, True, (200,200,200)), (260, 320))
+
+
 
 # ========================
 # MAIN LOOP
@@ -440,18 +489,40 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        if state == START and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            reset_game()
-            lives = MAX_LIVES
-            state = PLAYING
+        if state == LEVEL_SELECT and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_1:
+                current_level = LEVEL_INTRO
+                Level_Shown = Game_level1
+            if event.key == pygame.K_2:
+                current_level = LEVEL_EASY
+                Level_Shown = Game_level2
+
+            if event.key == pygame.K_3:
+                current_level = LEVEL_MEDIUM
+                Level_Shown = Game_level3
+
+            if event.key == pygame.K_4:
+                current_level = LEVEL_IMPOSSIBLE
+                Level_Shown = Game_level4
+
+
+            if current_level:
+                BG_SPEED = current_level["BG_SPEED"]
+                PILLAR_SPEED = current_level["PILLAR_SPEED"]
+                BIRD_SPAWN_TIME = current_level["BIRD_SPAWN"]
+                PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
+                lives = MAX_LIVES
+                score = 0
+                reset_game()
+                state = PLAYING
 
         if state == GAME_OVER and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             reset_game()
             lives = MAX_LIVES
             state = PLAYING
 
-    if state == START:
-        draw_start()
+    if state == LEVEL_SELECT:
+        draw_level_select()
         pygame.display.flip()
         dt = clock.tick(60) / 1000
         continue
@@ -470,7 +541,7 @@ while running:
         powerup_timer = 0
 
     pillar_timer += dt
-    if pillar_timer >= max(2, 1.8 - score * 0.01):
+    if pillar_timer >= PILLAR_SPAWN_TIME:
         gap = max(95, 180 - score * 0.15)
         pillars.append(PillarPair(WINDOW_WIDTH + 100, gap))
         pillar_timer = 0
