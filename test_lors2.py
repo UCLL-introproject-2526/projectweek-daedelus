@@ -439,6 +439,10 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+        if event.type == pygame.KEYDOWN and not music_started: #|
+            pygame.mixer.music.play(-1)                        #| start muziek pas na de input op browser ?
+            music_started = True                               #|
+
         if state == START and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
             reset_game()
             lives = MAX_LIVES

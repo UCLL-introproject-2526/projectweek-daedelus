@@ -96,6 +96,7 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 score = 0
+music_started = False        #muziek begint enkel bij player input in de browser
 
 # ========================
 # GAME STATES
@@ -610,6 +611,11 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+
+        if event.type == pygame.KEYDOWN and not music_started: #|
+            pygame.mixer.music.play(-1)                        #| start muziek pas na de input op browser ?
+            music_started = True                               #|
+
 
         if state == LEVEL_SELECT and event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
