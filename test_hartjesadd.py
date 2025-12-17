@@ -31,6 +31,8 @@ SUN_HEIGHT = 100
 SUN_DAMAGE_Y = UI_BAR
 SUN_TOLERANCE = 25  # hoeveel pixels je mag "indringen" zonder damage
 
+INVINCIBILITY_DURATION = 5.0
+invincible_timer = 0
 
 # ========================
 # SETUP
@@ -83,6 +85,8 @@ sun_surface = pygame.Surface((WINDOW_WIDTH, SUN_HEIGHT), pygame.SRCALPHA)
 sun_surface.fill((255, 200, 0, 180))  # zelfde kleur als glow
 sun_mask = pygame.mask.from_surface(sun_surface)
 
+powerup_image = pygame.image.load("Sprites/powerup_veer.png").convert_alpha()
+powerup_mask = pygame.mask.from_surface(powerup_image)
 
 # ========================
 # TEKST
@@ -126,6 +130,10 @@ PILLAR_WIDTH = pillar_img.get_width()
 pillars = []
 pillar_timer = 0
 
+powerups = []
+powerup_speed = 200
+powerup_spawn_time = 15
+powerup_timer = 0
 # ========================
 # VOGEL FRAMES (GESCHAALD)
 # ========================
@@ -244,12 +252,39 @@ def draw_lives():
     for i in range(lives):
         screen.blit(heart_image, (WINDOW_WIDTH - 50 * (i + 1), 0))
 
+def spawn_powerup():
+    rect = powerup_image.get_rect(
+        midleft=(WINDOW_WIDTH + 50, randrange(UI_BAR + 60, WINDOW_HEIGHT - 120))
+    )
+    powerups.append(rect)
+
+def update_powerups():
+    global invincible_timer
+
+    for p in powerups[:]:
+        p.x -= powerup_speed * dt
+
+        if p.right < 0:
+            powerups.remove(p)
+            continue
+
+        offset_x = p.x - icarus_rect.x
+        offset_y = p.y - icarus_rect.y
+
+        if icarus_mask.overlap(powerup_mask, (offset_x, offset_y)):
+            invincible_timer = INVINCIBILITY_DURATION
+            powerups.remove(p)
+            continue
+
+        screen.blit(powerup_image, p)
 
 def load_level():
     infinite_background()
     infinite_waves()
 
     draw_sun_glow()
+
+    update_powerups()
 
     screen.blit(text_surface, text_rect)
 
@@ -259,6 +294,12 @@ def load_level():
     # knipperen tijdens invincibility
     if hit_timer <= 0 or int(hit_timer * 10) % 2 == 0:
         screen.blit(icarus, icarus_rect)
+
+    if invincible_timer > 0:
+        glow = pygame.Surface(icarus_rect.size, pygame.SRCALPHA)
+        glow.fill((255, 255, 255, 80))
+        screen.blit(glow, icarus_rect.topleft)
+
 
     screen.blit(Ui, (0, 0))
 
@@ -311,7 +352,7 @@ class PillarPair:
             or self.bottom_hitbox.colliderect(player_rect)
         )
 def reset_game():
-    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer
+    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer, invincible_timer, powerup_timer
     bird_spawn_timer = 0
     bird_anim_timer = 0
     bird_frame_index = 0
@@ -319,9 +360,13 @@ def reset_game():
     score = 0
     BG_SPEED = 300
     pillar_timer = 0
+    invincible_timer = 0
+    powerup_timer = 0
+
     pillars.clear()
     hearts.clear() #toegevoegd
     birds.clear() #toegevoegd
+    powerups.clear()
     icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
 
 def spawn_bird():
@@ -357,6 +402,7 @@ def update_birds():
 
         screen.blit(bird_frames[bird_frame_index], bird)
 
+    
 
 def draw_start():
     infinite_background()
@@ -418,6 +464,11 @@ while running:
 
     handle_keys()
 
+    powerup_timer += dt
+    if powerup_timer >= powerup_spawn_time:
+        spawn_powerup()
+        powerup_timer = 0
+
     pillar_timer += dt
     if pillar_timer >= max(2, 1.8 - score * 0.01):
         gap = max(95, 180 - score * 0.15)
@@ -460,12 +511,13 @@ while running:
     if hit_timer > 0:
         hit_timer -= dt
 
-    if check_sun_collision() and hit_timer <= 0:
+    if check_sun_collision() and hit_timer <= 0 and invincible_timer <= 0:
+
         lives -= 1
         hit_timer = HIT_COOLDOWN 
 
     # zee raakt → 1 leven verliezen
-    if check_wave_collision() and hit_timer <= 0:
+    if check_wave_collision() and hit_timer <= 0 and invincible_timer <= 0:
         lives -= 1
         hit_timer = HIT_COOLDOWN
 
@@ -483,6 +535,9 @@ while running:
         heart_timer = 0
 
     update_hearts()
+
+    if invincible_timer > 0:
+        invincible_timer -= dt
 
     pygame.display.flip()
     dt = clock.tick(60) / 1000
