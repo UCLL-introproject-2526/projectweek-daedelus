@@ -140,8 +140,11 @@ icarus_mask = pygame.mask.from_surface(icarus)
 icarus_shielded = pygame.image.load("Sprites/Icarus_shielded.png").convert_alpha()
 icarus_shielded = pygame.transform.scale(icarus_shielded, icarus.get_size())
 
-icarus_shielded = pygame.image.load("Sprites/Icarus_shielded.png").convert_alpha()
-icarus_shielded = pygame.transform.scale(icarus_shielded, icarus.get_size())
+icarus_2hearts = pygame.image.load().convert_alpha()
+icarus_2hearts_mask = pygame.mask.from_surface(icarus_2hearts)
+
+icarus_1heart = pygame.image.load().convert_alpha()
+icarus_1heart_mask = pygame.mask.from_surface(icarus_1heart)
 
 game_over_img = pygame.image.load("Sprites/game_over3.png").convert_alpha()
 game_over_img = pygame.transform.scale(game_over_img, (600, 200))
@@ -152,6 +155,7 @@ sun_mask = pygame.mask.from_surface(sun_surface)
 
 powerup_image = pygame.image.load("Sprites/Shield.png").convert_alpha()
 powerup_mask = pygame.mask.from_surface(powerup_image)
+
 
 # ========================
 # BACKGROUND VARS
