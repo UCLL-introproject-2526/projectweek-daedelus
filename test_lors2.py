@@ -225,14 +225,15 @@ class SoundLibrary:
         hit_sound = pygame.mixer.Sound("Sound\Soundeffect\Hit.ogg")
         hit_sound.set_volume(1.0)
 
-        bird_sound = pygame.mixer.Sound(Sound/Soundeffect/Bird.ogg)
+        bird_sound = pygame.mixer.Sound("Sound/Soundeffect/Bird.ogg")
         bird_sound.set_volume(1.0)
 
         self.sounds = {
             "heart": heart_sound,
             "splash": splash_sound,
             "oof": oof_sound, 
-            "hit": hit_sound
+            "hit": hit_sound,
+            "bird": bird_sound
             
             
         }
@@ -388,6 +389,8 @@ def update_birds():
             if icarus_mask.overlap(
                 bird_masks[bird_frame_index], (offset_x, offset_y)
             ):
+                sound_library.play("bird")
+                sound_library.play("oof")
                 lives -= 1
                 hit_timer = HIT_COOLDOWN
                 birds.remove(bird)
