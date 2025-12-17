@@ -12,10 +12,6 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 UI_BAR = 50
 
-LEVEL_X = 260
-LEVEL_Y_START = 200
-LEVEL_SPACING = 50
-
 BG_SPEED = 300
 WAVE_SPEED = 200
 PILLAR_SPEED = 300
@@ -26,22 +22,21 @@ lives = 3
 HIT_COOLDOWN = 1.2
 hit_timer = 0
 
-LEVEL_SCORE_LIMIT = None
+PILLAR_SPAWN_TIME = 2.0
+
+LEVEL_BOX_WIDTH = 220
+LEVEL_BOX_HEIGHT = 44
+LEVEL_SPACING = 56
+
 
 # Vogel
 BIRD_SPEED = 500
 BIRD_SPAWN_TIME = 2.0
 BIRD_ANIM_SPEED = 0.15
 
-# Sun
 SUN_HEIGHT = 100
 SUN_DAMAGE_Y = UI_BAR
 SUN_TOLERANCE = 25  # hoeveel pixels je mag "indringen" zonder damage
-
-# Booster
-INVINCIBILITY_DURATION = 5.0
-invincible_timer = 0
-SHIELD_WARNING_TIME = 1.0
 
 # Levels
 
@@ -50,9 +45,6 @@ LEVEL_INTRO = {
     "PILLAR_SPEED": 250,
     "BIRD_SPAWN": 3.0,
     "PILLAR_SPAWN": 2,
-    "POWERUP_SPAWN": 12.0,
-    "SCORE_LIMIT": 1000,
-    "HEART_SPAWN_TIME": 3,
 }
 
 LEVEL_EASY = {
@@ -60,9 +52,6 @@ LEVEL_EASY = {
     "PILLAR_SPEED": 400,
     "BIRD_SPAWN": 1.3,
     "PILLAR_SPAWN": 1.7,
-    "POWERUP_SPAWN": 15.0,
-    "SCORE_LIMIT": 2000,
-    "HEART_SPAWN_TIME": 10,
 }
 
 LEVEL_MEDIUM = {
@@ -70,19 +59,13 @@ LEVEL_MEDIUM = {
     "PILLAR_SPEED": 550,
     "BIRD_SPAWN": 0.7,
     "PILLAR_SPAWN": 1,
-    "POWERUP_SPAWN": 20.0,
-    "SCORE_LIMIT": 3000,
-    "HEART_SPAWN_TIME": 20,
 }
 
 LEVEL_IMPOSSIBLE = {
     "BG_SPEED": 700,
     "PILLAR_SPEED": 700,
-    "BIRD_SPAWN": 0.4,
-    "PILLAR_SPAWN": 0.7,
-    "POWERUP_SPAWN": 20,
-    "SCORE_LIMIT": None,
-    "HEART_SPAWN_TIME": 25,
+    "BIRD_SPAWN": 0.1,
+    "PILLAR_SPAWN": 0.5,
 }
 
 # ========================
@@ -99,7 +82,6 @@ clock = pygame.time.Clock()
 running = True
 dt = 0
 score = 0
-music_started = False        #muziek begint enkel bij player input in de browser
 
 # ========================
 # GAME STATES
@@ -107,7 +89,6 @@ music_started = False        #muziek begint enkel bij player input in de browser
 LEVEL_SELECT = 0
 PLAYING = 1
 GAME_OVER = 2
-LEVEL_COMPLETED = 3
 
 state = LEVEL_SELECT
 current_level = None
@@ -117,7 +98,6 @@ record = 0
 # MUSIC
 # ========================
 pygame.mixer.music.load("Sound/Music/2.ogg")
-pygame.mixer.music.set_volume(0.3)
 pygame.mixer.music.play(-1)
 
 # ========================
@@ -141,36 +121,48 @@ icarus = pygame.image.load('Sprites/icarus_sprite.png').convert_alpha()
 icarus_rect = icarus.get_rect(midleft=(0, WINDOW_HEIGHT / 2))
 icarus_mask = pygame.mask.from_surface(icarus)
 
-icarus_shielded = pygame.image.load("Sprites/Icarus_shielded.png").convert_alpha()
-icarus_shielded = pygame.transform.scale(icarus_shielded, icarus.get_size())
-
-icarus_shielded = pygame.image.load("Sprites/Icarus_shielded.png").convert_alpha()
-icarus_shielded = pygame.transform.scale(icarus_shielded, icarus.get_size())
-
 game_over_img = pygame.image.load("Sprites/game_over3.png").convert_alpha()
-game_over_img = pygame.transform.scale(game_over_img, (600, 200))
+game_over_img = pygame.transform.scale(
+    game_over_img, (600 , 200)
+)
+level1_img = pygame.image.load("Sprites/intro1.png").convert_alpha()
+level2_img = pygame.image.load("Sprites/easy2.png").convert_alpha()
+level3_img = pygame.image.load("Sprites/meduim3.png").convert_alpha()
+level4_img = pygame.image.load("Sprites/impossible4.png").convert_alpha()
+
+# Schalen (pas grootte aan naar smaak)
+LEVEL_W, LEVEL_H = 180, 40
+level1_img = pygame.transform.scale(level1_img, (200, 45))   # Intro (groot)
+level2_img = pygame.transform.scale(level2_img, (200, 40))   # Easy
+level3_img = pygame.transform.scale(level3_img, (200, 40))   # Medium
+level4_img = pygame.transform.scale(level4_img, (200, 40))   # Impossible (kleiner!)
+
+
 
 sun_surface = pygame.Surface((WINDOW_WIDTH, SUN_HEIGHT), pygame.SRCALPHA)
 sun_surface.fill((255, 200, 0, 180))  # zelfde kleur als glow
 sun_mask = pygame.mask.from_surface(sun_surface)
 
-powerup_image = pygame.image.load("Sprites/Shield.png").convert_alpha()
-powerup_mask = pygame.mask.from_surface(powerup_image)
 
-SCALE = 0.5  # kleiner = 0.6, groter = 0.8
 
-level_intro_img = pygame.transform.scale_by(
-    pygame.image.load("Sprites/intro1.png").convert_alpha(), SCALE
+# ========================
+# TEKST
+# ========================
+text_surface = font.render(
+    'The sea waits below. The sun burns above.',
+    True,
+    (212, 175, 55)
 )
-level_easy_img = pygame.transform.scale_by(
-    pygame.image.load("Sprites/easy2.png").convert_alpha(), SCALE
-)
-level_medium_img = pygame.transform.scale_by(
-    pygame.image.load("Sprites/meduim3.png").convert_alpha(), SCALE
-)
-level_impossible_img = pygame.transform.scale_by(
-    pygame.image.load("Sprites/impossible4.png").convert_alpha(), SCALE
-)
+text_rect = text_surface.get_rect(center=(WINDOW_WIDTH / 2, 100))
+
+# ========================
+# TEKST 2
+# ========================
+title_text = font.render("Flight of Icarus", True, (212, 175, 55))
+start_text = font.render("Press SPACE to start", True, (255, 255, 255))
+
+game_over_text = font.render("GAME OVER", True, (200, 50, 50))
+restart_text = font.render("Press SPACE to restart", True, (255, 255, 255))
 
 # ========================
 # BACKGROUND VARS
@@ -195,10 +187,6 @@ PILLAR_WIDTH = pillar_img.get_width()
 pillars = []
 pillar_timer = 0
 
-powerups = []
-powerup_speed = 200
-powerup_spawn_time = 15
-powerup_timer = 0
 # ========================
 # VOGEL FRAMES (GESCHAALD)
 # ========================
@@ -267,17 +255,12 @@ def check_wave_collision():
     offset_y2 = wave_y - icarus_rect.y
     if icarus_mask.overlap(waves_mask, (offset_x2, offset_y2)):
         return True
-    if lives <= 0:
-        game_over()
 
     return False
 
 def check_sun_collision():
     penetration = (UI_BAR + SUN_HEIGHT) - icarus_rect.top
-    if lives <= 0:
-                    game_over()
     return penetration > SUN_TOLERANCE
-    
 
 
 def spawn_heart():
@@ -286,47 +269,6 @@ def spawn_heart():
     )
     hearts.append(heart_rect)
 
-class SoundLibrary:
-    def __init__(self):
-        heart_sound = pygame.mixer.Sound("Sound/Soundeffect/Heart.ogg")
-        heart_sound.set_volume(1.0)
-        
-        splash_sound = pygame.mixer.Sound("Sound/Soundeffect/Splash.ogg")
-        splash_sound.set_volume(1.0)
-
-        oof_sound = pygame.mixer.Sound("Sound/Soundeffect/Oof.ogg")
-        oof_sound.set_volume(0.4)
-
-        hit_sound = pygame.mixer.Sound("Sound\Soundeffect\Hit.ogg")
-        hit_sound.set_volume(1.0)
-
-        bird_sound = pygame.mixer.Sound("Sound/Soundeffect/Bird.ogg")
-        bird_sound.set_volume(1.0)
-
-        powerup_sound = pygame.mixer.Sound("Sound/Soundeffect/Powerup.ogg")
-        powerup_sound.set_volume(1.0)
-
-        sun_sound = pygame.mixer.Sound("Sound\Soundeffect\Sun_damage.ogg")
-        sun_sound.set_volume(0.3)
-
-
-        self.sounds = {
-            "heart": heart_sound,
-            "splash": splash_sound,
-            "oof": oof_sound, 
-            "hit": hit_sound,
-            "bird": bird_sound,
-            "powerup": powerup_sound,
-            "sun": sun_sound
-            
-            
-        }
-        
-    def play(self, sound_id):
-        if sound_id in self.sounds:
-            self.sounds[sound_id].play()
-
-sound_library = SoundLibrary()
 
 def update_hearts():
     global lives
@@ -343,7 +285,6 @@ def update_hearts():
 
         if icarus_mask.overlap(heart_mask, (offset_x, offset_y)):
             hearts.remove(heart)
-            sound_library.play("heart")
 
             if lives < MAX_LIVES:
                 lives += 1
@@ -364,32 +305,6 @@ def draw_lives():
     for i in range(lives):
         screen.blit(heart_image, (WINDOW_WIDTH - 50 * (i + 1), 0))
 
-def spawn_powerup():
-    rect = powerup_image.get_rect(
-        midleft=(WINDOW_WIDTH + 50, randrange(UI_BAR + 60, WINDOW_HEIGHT - 120))
-    )
-    powerups.append(rect)
-
-def update_powerups():
-    global invincible_timer
-
-    for p in powerups[:]:
-        p.x -= powerup_speed * dt
-
-        if p.right < 0:
-            powerups.remove(p)
-            continue
-
-        offset_x = p.x - icarus_rect.x
-        offset_y = p.y - icarus_rect.y
-
-        if icarus_mask.overlap(powerup_mask, (offset_x, offset_y)):
-            sound_library.play("powerup")
-            invincible_timer = INVINCIBILITY_DURATION
-            powerups.remove(p)
-            continue
-
-        screen.blit(powerup_image, p)
 
 def load_level():
     infinite_background()
@@ -397,26 +312,14 @@ def load_level():
 
     draw_sun_glow()
 
-    update_powerups()
+    screen.blit(text_surface, text_rect)
 
     for pillar in pillars:
         pillar.draw()
 
     # knipperen tijdens invincibility
-    if invincible_timer > 0:
-    # Laatste seconde → flikkeren
-        if invincible_timer <= SHIELD_WARNING_TIME:
-            if int(invincible_timer * 10) % 2 == 0:
-                screen.blit(icarus_shielded, icarus_rect)
-        else:
-            screen.blit(icarus_shielded, icarus_rect)
-    else:
-        # normale hit-knipper
-        if hit_timer <= 0 or int(hit_timer * 10) % 2 == 0:
-            screen.blit(icarus, icarus_rect)
-
-
-
+    if hit_timer <= 0 or int(hit_timer * 10) % 2 == 0:
+        screen.blit(icarus, icarus_rect)
 
     screen.blit(Ui, (0, 0))
     Level_Ui = font.render(Level_Shown, True, (255,255,255), )
@@ -472,7 +375,7 @@ class PillarPair:
             or self.bottom_hitbox.colliderect(player_rect)
         )
 def reset_game():
-    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer, score, pillar_timer, powerup_timer, invincible_timer
+    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer, score, pillar_timer
     bird_spawn_timer = 0
     bird_anim_timer = 0
     bird_frame_index = 0
@@ -480,13 +383,9 @@ def reset_game():
     score = 0
     BG_SPEED = 300
     pillar_timer = 0
-    invincible_timer = 0
-    powerup_timer = 0
-
     pillars.clear()
     hearts.clear() #toegevoegd
     birds.clear() #toegevoegd
-    powerups.clear()
     icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
 
 def spawn_bird():
@@ -508,12 +407,10 @@ def update_birds():
         offset_x = bird.x - icarus_rect.x
         offset_y = bird.y - icarus_rect.y
 
-        if hit_timer <= 0 and invincible_timer <= 0:
+        if hit_timer <= 0:
             if icarus_mask.overlap(
                 bird_masks[bird_frame_index], (offset_x, offset_y)
             ):
-                sound_library.play("bird")
-                sound_library.play("oof")
                 lives -= 1
                 hit_timer = HIT_COOLDOWN
                 birds.remove(bird)
@@ -525,39 +422,41 @@ def update_birds():
         screen.blit(bird_frames[bird_frame_index], bird)
 
 
+def draw_start():
+    infinite_background()
+    infinite_waves()
+    screen.blit(title_text, title_text.get_rect(center=(WINDOW_WIDTH // 2, 220)))
+    screen.blit(start_text, start_text.get_rect(center=(WINDOW_WIDTH // 2, 270)))
+
 def draw_game_over():
-    # achtergrond zoals vroeger
+    # ✅ OUDE achtergrond terug
     infinite_background()
     infinite_waves()
 
-    # donkere overlay
+    # (optioneel) zon-glow als je die wilt
+    draw_sun_glow()
+
+    # 🔲 Donkere overlay voor leesbaarheid (optioneel maar mooi)
     overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
     overlay.set_alpha(120)
     overlay.fill((0, 0, 0))
     screen.blit(overlay, (0, 0))
 
-    # 🖼️ GAME OVER AFBEELDING
+    # ✅ NIEUWE GAME OVER AFBEELDING (klein + gecentreerd)
     go_rect = game_over_img.get_rect(
-        center=(WINDOW_WIDTH // 2, 120)
+        center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 40)
     )
     screen.blit(game_over_img, go_rect)
 
-    # score
-    screen.blit(
-        font.render(f"Score: {int(score)}", True, (255, 255, 255)),
-        (WINDOW_WIDTH // 2 - 80, 260),
-    )
+    # ✅ Tekst eronder (zoals vroeger)
+    score_text = font.render(f"Score: {int(score)}", True, (255, 255, 255))
+    record_text = font.render(f"Record: {record}", True, (255, 215, 0))
 
-    # record
+    screen.blit(score_text, score_text.get_rect(center=(WINDOW_WIDTH // 2, go_rect.bottom + 40)))
+    screen.blit(record_text, record_text.get_rect(center=(WINDOW_WIDTH // 2, go_rect.bottom + 80)))
     screen.blit(
-        font.render(f"Record: {record}", True, (255, 215, 0)),
-        (WINDOW_WIDTH // 2 - 80, 300),
-    )
-
-    # ✅ DIT DEEL BLIJFT (zoals jij wilde)
-    screen.blit(
-        font.render("Press ESC for Exit or SPACE for Retry", True, (255, 255, 255)),
-        (50, 360)
+        restart_text,
+        restart_text.get_rect(center=(WINDOW_WIDTH // 2, go_rect.bottom + 130))
     )
 
 def game_over():
@@ -565,33 +464,60 @@ def game_over():
     if score > record:
         record = int(score)
     state = GAME_OVER
+    
+def render_text_fit(text, font_path, max_width, color):
+    size = 40
+    while size > 10:
+        font = pygame.font.Font(font_path, size)
+        surf = font.render(text, True, color)
+        if surf.get_width() <= max_width:
+            return surf
+        size -= 1
+    return surf
+
 
 def draw_level_select():
     infinite_background()
     infinite_waves()
 
-    screen.blit(font.render("Flight of Icarus", True, (212, 175, 55)),(260, 100))
-    screen.blit(font.render("Kies een level:", True, (255,255,255)), (260, 150))
-    screen.blit(level_intro_img, (LEVEL_X, LEVEL_Y_START))
-    screen.blit(level_easy_img, (LEVEL_X, LEVEL_Y_START + LEVEL_SPACING))
-    screen.blit(level_medium_img, (LEVEL_X, LEVEL_Y_START + LEVEL_SPACING * 2))
-    screen.blit(level_impossible_img, (LEVEL_X, LEVEL_Y_START + LEVEL_SPACING * 3))
+    overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    overlay.set_alpha(60)
+    overlay.fill((0, 0, 0))
+    screen.blit(overlay, (0, 0))
 
-def draw_level_completed():
-    infinite_background()
-    infinite_waves()
-    screen.blit(
-        font.render("Level Completed!", True, (212, 175, 55)),
-        (WINDOW_WIDTH // 2 - 120, 180)
-    )
-    screen.blit(
-        font.render(f"Score: {int(score)}", True, (255, 255, 255)),
-        (WINDOW_WIDTH // 2 - 80, 240)
-    )
-    screen.blit(
-        font.render("Press ESC for Exit or SPACE for Next Level", True, (255, 255, 255)),
-        (50, 300)
-    )
+    levels = [
+        "1 - INTRO",
+        "2 - EASY",
+        "3 - MEDIUM",
+        "4 - IMPOSSIBLE",
+    ]
+
+    start_x = WINDOW_WIDTH - 300
+    start_y = WINDOW_HEIGHT - 260
+
+    for i, text in enumerate(levels):
+        rect = pygame.Rect(
+            start_x,
+            start_y + i * LEVEL_SPACING,
+            LEVEL_BOX_WIDTH,
+            LEVEL_BOX_HEIGHT
+        )
+
+        pygame.draw.rect(screen, (0, 0, 0, 140), rect)
+        pygame.draw.rect(screen, (255, 215, 0), rect, 2)
+
+        text_surface = render_text_fit(
+            text,
+            "fonts/Cinzel-VariableFont_wght.ttf",
+            LEVEL_BOX_WIDTH - 20,
+            (255, 215, 0)
+        )
+
+        screen.blit(
+            text_surface,
+            text_surface.get_rect(center=rect.center)
+        )
+
 
 # ========================
 # MAIN LOOP
@@ -601,16 +527,10 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-        if event.type == pygame.KEYDOWN and not music_started: #|
-            pygame.mixer.music.play(-1)                        #| start muziek pas na de input op browser ?
-            music_started = True                               #|
-
-
         if state == LEVEL_SELECT and event.type == pygame.KEYDOWN:
             if event.key == pygame.K_1:
                 current_level = LEVEL_INTRO
                 Level_Shown = Game_level1
-
             if event.key == pygame.K_2:
                 current_level = LEVEL_EASY
                 Level_Shown = Game_level2
@@ -623,58 +543,21 @@ while running:
                 current_level = LEVEL_IMPOSSIBLE
                 Level_Shown = Game_level4
 
+
             if current_level:
                 BG_SPEED = current_level["BG_SPEED"]
                 PILLAR_SPEED = current_level["PILLAR_SPEED"]
                 BIRD_SPAWN_TIME = current_level["BIRD_SPAWN"]
                 PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
-                powerup_spawn_time = current_level["POWERUP_SPAWN"]
-                LEVEL_SCORE_LIMIT = current_level["SCORE_LIMIT"]
-                heart_spawn_time = current_level["HEART_SPAWN_TIME"]
-
                 lives = MAX_LIVES
                 score = 0
                 reset_game()
                 state = PLAYING
 
-        if state == LEVEL_COMPLETED and event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:  # Exit
-                state = LEVEL_SELECT
-                current_level = None
-            if event.key == pygame.K_SPACE:  # Next level
-                if Level_Shown == Game_level1:
-                    current_level = LEVEL_EASY
-                    Level_Shown = Game_level2
-                elif Level_Shown == Game_level2:
-                    current_level = LEVEL_MEDIUM
-                    Level_Shown = Game_level3
-                elif Level_Shown == Game_level3:
-                    current_level = LEVEL_IMPOSSIBLE
-                    Level_Shown = Game_level4
-                else:
-                    state = LEVEL_SELECT
-                    current_level = None
-                if current_level:
-                    BG_SPEED = current_level["BG_SPEED"]
-                    PILLAR_SPEED = current_level["PILLAR_SPEED"]
-                    BIRD_SPAWN_TIME = current_level["BIRD_SPAWN"]
-                    PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
-                    powerup_spawn_time = current_level["POWERUP_SPAWN"]
-                    LEVEL_SCORE_LIMIT = current_level["SCORE_LIMIT"]
-                    lives = MAX_LIVES
-                    reset_game()
-                    state = PLAYING
-
-
-        if state == GAME_OVER and event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                reset_game()
-                lives = MAX_LIVES
-                state = PLAYING
-            if event.key == pygame.K_ESCAPE:
-                state = LEVEL_SELECT
-                current_level = None
-
+        if state == GAME_OVER and event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            reset_game()
+            lives = MAX_LIVES
+            state = PLAYING
 
     if state == LEVEL_SELECT:
         draw_level_select()
@@ -688,20 +571,8 @@ while running:
         dt = clock.tick(60) / 1000
         continue
 
-    if state == LEVEL_COMPLETED:
-        draw_level_completed()
-        pygame.display.flip()
-        dt = clock.tick(60) / 1000
-        continue
-
-
     handle_keys()
 
-    powerup_timer += dt
-    if powerup_timer >= powerup_spawn_time:
-        spawn_powerup()
-        powerup_timer = 0
-    
     pillar_timer += dt
     if pillar_timer >= PILLAR_SPAWN_TIME:
         gap = max(95, 180 - score * 0.15)
@@ -712,11 +583,9 @@ while running:
     for pillar in pillars:
         pillar.update()
 
-        if pillar.collides(icarus_rect) and hit_timer <= 0 and invincible_timer <= 0:
+        if pillar.collides(icarus_rect) and hit_timer <= 0:
             lives -= 1
             hit_timer = HIT_COOLDOWN
-            sound_library.play("oof"),
-            sound_library.play("hit")
 
             if lives <= 0:
                 if score > record:
@@ -746,20 +615,14 @@ while running:
     if hit_timer > 0:
         hit_timer -= dt
 
-
-    if check_sun_collision() and hit_timer <= 0 and invincible_timer <= 0:
-
+    if check_sun_collision() and hit_timer <= 0:
         lives -= 1
         hit_timer = HIT_COOLDOWN 
-        sound_library.play("oof")
-        sound_library.play("sun")
 
     # zee raakt → 1 leven verliezen
-    if check_wave_collision() and hit_timer <= 0 and invincible_timer <= 0:
+    if check_wave_collision() and hit_timer <= 0:
         lives -= 1
         hit_timer = HIT_COOLDOWN
-        sound_library.play("splash")
-        sound_library.play("oof")
 
         if lives <= 0:
             # update record als nodig
@@ -768,8 +631,6 @@ while running:
 
 
     score += dt * 20
-    if LEVEL_SCORE_LIMIT is not None and score >= LEVEL_SCORE_LIMIT:
-        state = LEVEL_COMPLETED
 
     heart_timer += dt
     if heart_timer >= heart_spawn_time:
@@ -777,9 +638,6 @@ while running:
         heart_timer = 0
 
     update_hearts()
-
-    if invincible_timer > 0:
-        invincible_timer -= dt
 
     pygame.display.flip()
     dt = clock.tick(60) / 1000
