@@ -137,6 +137,11 @@ icarus_mask = pygame.mask.from_surface(icarus)
 icarus_shielded = pygame.image.load("Sprites/Icarus_shielded.png").convert_alpha()
 icarus_shielded = pygame.transform.scale(icarus_shielded, icarus.get_size())
 
+icarus_shielded = pygame.image.load("Sprites/Icarus_shielded.png").convert_alpha()
+icarus_shielded = pygame.transform.scale(icarus_shielded, icarus.get_size())
+
+game_over_img = pygame.image.load("Sprites/game_over3.png").convert_alpha()
+game_over_img = pygame.transform.scale(game_over_img, (600, 200))
 
 sun_surface = pygame.Surface((WINDOW_WIDTH, SUN_HEIGHT), pygame.SRCALPHA)
 sun_surface.fill((255, 200, 0, 180))  # zelfde kleur als glow
@@ -477,20 +482,39 @@ def draw_start():
 
 
 def draw_game_over():
+    # achtergrond zoals vroeger
     infinite_background()
     infinite_waves()
-    screen.blit(game_over_text, game_over_text.get_rect(center=(WINDOW_WIDTH // 2, 120)))
+    draw_sun_glow()
+
+    # donkere overlay
+    overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+    overlay.set_alpha(120)
+    overlay.fill((0, 0, 0))
+    screen.blit(overlay, (0, 0))
+
+    # 🖼️ GAME OVER AFBEELDING
+    go_rect = game_over_img.get_rect(
+        center=(WINDOW_WIDTH // 2, 120)
+    )
+    screen.blit(game_over_img, go_rect)
+
+    # score
     screen.blit(
         font.render(f"Score: {int(score)}", True, (255, 255, 255)),
-        (WINDOW_WIDTH // 2 - 80, 180),
+        (WINDOW_WIDTH // 2 - 80, 260),
     )
+
+    # record
     screen.blit(
         font.render(f"Record: {record}", True, (255, 215, 0)),
-        (WINDOW_WIDTH // 2 - 80, 240),
+        (WINDOW_WIDTH // 2 - 80, 300),
     )
+
+    # ✅ DIT DEEL BLIJFT (zoals jij wilde)
     screen.blit(
         font.render("Press ESC for Exit or SPACE for Retry", True, (255, 255, 255)),
-        (50, 300)
+        (50, 360)
     )
 
 def game_over():
