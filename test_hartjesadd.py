@@ -22,25 +22,24 @@ lives = 3
 HIT_COOLDOWN = 1.2
 hit_timer = 0
 
-PILLAR_SPAWN_TIME = 2.0
-
 LEVEL_SCORE_LIMIT = None
-
 
 # Vogel
 BIRD_SPEED = 500
 BIRD_SPAWN_TIME = 2.0
 BIRD_ANIM_SPEED = 0.15
 
+# Sun
 SUN_HEIGHT = 100
 SUN_DAMAGE_Y = UI_BAR
 SUN_TOLERANCE = 25  # hoeveel pixels je mag "indringen" zonder damage
 
+# Booster
 INVINCIBILITY_DURATION = 5.0
 invincible_timer = 0
-# Levels
-
 SHIELD_WARNING_TIME = 1.0
+
+# Levels
 
 LEVEL_INTRO = {
     "BG_SPEED": 250,
@@ -153,25 +152,6 @@ sun_mask = pygame.mask.from_surface(sun_surface)
 
 powerup_image = pygame.image.load("Sprites/Shield.png").convert_alpha()
 powerup_mask = pygame.mask.from_surface(powerup_image)
-
-# ========================
-# TEKST
-# ========================
-text_surface = font.render(
-    'The sea waits below. The sun burns above.',
-    True,
-    (212, 175, 55)
-)
-text_rect = text_surface.get_rect(center=(WINDOW_WIDTH / 2, 100))
-
-# ========================
-# TEKST 2
-# ========================
-title_text = font.render("Flight of Icarus", True, (212, 175, 55))
-start_text = font.render("Press SPACE to start", True, (255, 255, 255))
-
-game_over_text = font.render("GAME OVER", True, (200, 50, 50))
-restart_text = font.render("Press SPACE to restart", True, (255, 255, 255))
 
 # ========================
 # BACKGROUND VARS
@@ -400,6 +380,8 @@ def load_level():
 
     update_powerups()
 
+    show_timer = 3
+
     screen.blit(text_surface, text_rect)
 
     for pillar in pillars:
@@ -527,14 +509,6 @@ def update_birds():
 
         screen.blit(bird_frames[bird_frame_index], bird)
 
-    
-
-def draw_start():
-    infinite_background()
-    infinite_waves()
-    screen.blit(title_text, title_text.get_rect(center=(WINDOW_WIDTH // 2, 220)))
-    screen.blit(start_text, start_text.get_rect(center=(WINDOW_WIDTH // 2, 270)))
-
 
 def draw_game_over():
     # achtergrond zoals vroeger
@@ -581,6 +555,7 @@ def draw_level_select():
     infinite_background()
     infinite_waves()
 
+    screen.blit(font.render("Flight of Icarus", True, (212, 175, 55)),(260, 100))
     screen.blit(font.render("Kies een level:", True, (255,255,255)), (260, 150))
     screen.blit(font.render(Game_level1, True, (200,200,200)), (260, 200))
     screen.blit(font.render(Game_level2, True, (200,200,200)), (260, 240))
@@ -602,7 +577,6 @@ def draw_level_completed():
         font.render("Press ESC for Exit or SPACE for Next Level", True, (255, 255, 255)),
         (50, 300)
     )
-
 
 # ========================
 # MAIN LOOP
@@ -712,7 +686,7 @@ while running:
     if powerup_timer >= powerup_spawn_time:
         spawn_powerup()
         powerup_timer = 0
-
+    
     pillar_timer += dt
     if pillar_timer >= PILLAR_SPAWN_TIME:
         gap = max(95, 180 - score * 0.15)
