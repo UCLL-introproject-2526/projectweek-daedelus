@@ -231,12 +231,17 @@ def check_wave_collision():
     offset_y2 = wave_y - icarus_rect.y
     if icarus_mask.overlap(waves_mask, (offset_x2, offset_y2)):
         return True
+    if lives <= 0:
+        game_over()
 
     return False
 
 def check_sun_collision():
     penetration = (UI_BAR + SUN_HEIGHT) - icarus_rect.top
+    if lives <= 0:
+                    game_over()
     return penetration > SUN_TOLERANCE
+    
 
 
 def spawn_heart():
