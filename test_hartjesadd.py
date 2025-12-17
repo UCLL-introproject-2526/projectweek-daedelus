@@ -72,7 +72,7 @@ LEVEL_MEDIUM = {
     "PILLAR_SPAWN": 1,
     "POWERUP_SPAWN": 20.0,
     "SCORE_LIMIT": 3000,
-    "HEART_SPAWN_TIME": 20,
+    "HEART_SPAWN_TIME": 25,
 }
 
 LEVEL_IMPOSSIBLE = {
@@ -80,9 +80,9 @@ LEVEL_IMPOSSIBLE = {
     "PILLAR_SPEED": 700,
     "BIRD_SPAWN": 0.4,
     "PILLAR_SPAWN": 0.7,
-    "POWERUP_SPAWN": 20,
+    "POWERUP_SPAWN": 17,
     "SCORE_LIMIT": None,
-    "HEART_SPAWN_TIME": 25,
+    "HEART_SPAWN_TIME": 20,
 }
 
 # ========================
@@ -667,7 +667,7 @@ while running:
                 lives = MAX_LIVES
                 score = 0
                 reset_game()
-                heart_timer = 0
+                heart_timer = powerup_spawn_time / 2 - 5
                 powerup_timer = powerup_spawn_time / 2
                 state = PLAYING
 
