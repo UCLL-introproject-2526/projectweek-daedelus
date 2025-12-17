@@ -40,6 +40,8 @@ INVINCIBILITY_DURATION = 5.0
 invincible_timer = 0
 # Levels
 
+SHIELD_WARNING_TIME = 1.0
+
 LEVEL_INTRO = {
     "BG_SPEED": 250,
     "PILLAR_SPEED": 250,
@@ -360,8 +362,14 @@ def load_level():
 
     # knipperen tijdens invincibility
     if invincible_timer > 0:
-        screen.blit(icarus_shielded, icarus_rect)
+    # Laatste seconde → flikkeren
+        if invincible_timer <= SHIELD_WARNING_TIME:
+            if int(invincible_timer * 10) % 2 == 0:
+                screen.blit(icarus_shielded, icarus_rect)
+        else:
+            screen.blit(icarus_shielded, icarus_rect)
     else:
+        # normale hit-knipper
         if hit_timer <= 0 or int(hit_timer * 10) % 2 == 0:
             screen.blit(icarus, icarus_rect)
 
