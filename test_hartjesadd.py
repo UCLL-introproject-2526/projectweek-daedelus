@@ -676,12 +676,18 @@ def draw_game_over():
     # Score
     if game_over_timer > 1.5:
         score_surf = end_score_font.render(f"Score: {int(score)}", True, fontColor)
+        score_surf2 = end_score_font.render(f"Score: {int(score)}", True, (0,0,0))
+        screen.blit(score_surf2, (center_x - score_surf.get_width() // 2 + 2, 262))
         screen.blit(score_surf, (center_x - score_surf.get_width() // 2, 260))
 
+        
     # Record
     if game_over_timer > 2.0:
         record_surf = end_score_font.render(f"Record: {record}", True, fontColor)
+        record_surf2 = end_score_font.render(f"Record: {record}", True, (0,0,0))
+        screen.blit(record_surf2, (center_x - record_surf.get_width() // 2 + 2, 302))
         screen.blit(record_surf, (center_x - record_surf.get_width() // 2, 300))
+
 
     # Knipperende instructie
     if game_over_timer > 2.6:
@@ -725,6 +731,7 @@ def draw_level_completed():
 ),
         (WINDOW_WIDTH // 2 - 120, 180)
     )
+
     screen.blit(
         font.render(f"Score: {int(score)}", True, (196,190,19)),
         (WINDOW_WIDTH // 2 - 80, 240)
