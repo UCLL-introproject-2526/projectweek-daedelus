@@ -191,7 +191,7 @@ game_over_img = pygame.transform.scale(game_over_img, (600, 200))
 game_over_bird = pygame.image.load("Sprites/Burning_death.png").convert_alpha()
 game_over_sun = pygame.image.load("Sprites/Burning_death.png").convert_alpha()
 game_over_wave = pygame.image.load("Sprites/death_by_wave.png").convert_alpha()
-game_over_pillar = pygame.image.load("Sprites/Burning_death.png").convert_alpha()
+game_over_pillar = pygame.image.load("Sprites/Icarus_pillar_death.png").convert_alpha()
 
 for img in [game_over_pillar, game_over_sun, game_over_wave, game_over_bird]:
     img = pygame.transform.scale(img, (WINDOW_WIDTH, WINDOW_HEIGHT))
