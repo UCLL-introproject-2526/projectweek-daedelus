@@ -28,6 +28,8 @@ hit_timer = 0
 
 LEVEL_SCORE_LIMIT = None
 
+intro_timer = 0
+
 # Vogel
 BIRD_SPEED = 0
 BIRD_SPAWN_TIME = 2.0
@@ -116,6 +118,7 @@ LEVEL_SELECT = 0
 PLAYING = 1
 GAME_OVER = 2
 LEVEL_COMPLETED = 3
+INTRO_SCREEN = 5
 
 game_over_timer = 0
 
@@ -181,6 +184,10 @@ sun_mask = pygame.mask.from_surface(sun_surface)
 
 powerup_image = pygame.image.load("Sprites/Shield.png").convert_alpha()
 powerup_mask = pygame.mask.from_surface(powerup_image)
+
+intro_screen_img = pygame.image.load("Sprites/Into_sequence.png").convert_alpha()
+intro_screen_img = pygame.transform.scale(intro_screen_img, (WINDOW_WIDTH, WINDOW_HEIGHT))
+
 
 SCALE = 0.5  # kleiner = 0.6, groter = 0.8
 
@@ -518,7 +525,6 @@ def reset_game():
     bird_frame_index = 0
     heart_timer = 0
     score = 0
-    BG_SPEED = 300
     pillar_timer = 0
     invincible_timer = 0
     powerup_timer = 0
@@ -645,10 +651,16 @@ def draw_level_completed():
         (50, 300)
     )
 
+def draw_intro_screen():
+    screen.blit(intro_screen_img, (0, 0))
+
+
+
 # ========================
 # MAIN LOOP
 # ========================
 while running:
+    dt = clock.tick(60) / 1000
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -662,6 +674,8 @@ while running:
             if event.key == pygame.K_1:
                 current_level = LEVEL_INTRO
                 Level_Shown = Game_level1
+                state = INTRO_SCREEN
+                intro_timer = 0
 
             if event.key == pygame.K_2:
                 current_level = LEVEL_EASY
@@ -675,7 +689,7 @@ while running:
                 current_level = LEVEL_IMPOSSIBLE
                 Level_Shown = Game_level4
 
-            if current_level:
+            if current_level and state != INTRO_SCREEN:
                 BG_SPEED = current_level["BG_SPEED"]
                 PILLAR_SPEED = current_level["PILLAR_SPEED"]
                 BIRD_SPAWN_TIME = current_level["BIRD_SPAWN"]
@@ -710,7 +724,7 @@ while running:
                 else:
                     state = LEVEL_SELECT
                     current_level = None
-                if current_level:
+                if current_level and state != INTRO_SCREEN:
                     BG_SPEED = current_level["BG_SPEED"]
                     PILLAR_SPEED = current_level["PILLAR_SPEED"]
                     BIRD_SPAWN_TIME = current_level["BIRD_SPAWN"]
@@ -737,20 +751,39 @@ while running:
     if state == LEVEL_SELECT:
         draw_level_select()
         pygame.display.flip()
-        dt = clock.tick(60) / 1000
         continue
 
     if state == GAME_OVER:
         draw_game_over()
         pygame.display.flip()
-        dt = clock.tick(60) / 1000
         continue
 
     if state == LEVEL_COMPLETED:
         draw_level_completed()
         pygame.display.flip()
-        dt = clock.tick(60) / 1000
         continue
+
+    if state == INTRO_SCREEN:
+        draw_intro_screen()
+        intro_timer += dt
+        if intro_timer >= 5:
+            BG_SPEED = current_level["BG_SPEED"]
+            PILLAR_SPEED = current_level["PILLAR_SPEED"]
+            BIRD_SPAWN_TIME = current_level["BIRD_SPAWN"]
+            PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
+            powerup_spawn_time = current_level["POWERUP_SPAWN"]
+            LEVEL_SCORE_LIMIT = current_level["SCORE_LIMIT"]
+            heart_spawn_time = current_level["HEART_SPAWN_TIME"]
+            BIRD_SPEED = current_level["BIRD_SPEED"]
+            WAVE_SPEED = current_level["WAVE_SPEED"]
+
+            lives = MAX_LIVES
+            reset_game()
+            state = PLAYING
+        pygame.display.flip()
+        continue
+
+
 
 
     handle_keys()
@@ -837,6 +870,5 @@ while running:
         invincible_timer -= dt
 
     pygame.display.flip()
-    dt = clock.tick(60) / 1000
 
 pygame.quit()
