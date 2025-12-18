@@ -525,7 +525,7 @@ def load_level():
     # UI (GEEN SHAKE)
     # ------------------------
     screen.blit(Ui, (0, 0))
-    score_font.set_bold(True)
+
     score_text = score_font.render(f"Score: {int(score)}", True, (255, 255, 255))
     screen.blit(score_text, (10, 10))
 
