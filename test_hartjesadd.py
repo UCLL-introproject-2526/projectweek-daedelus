@@ -52,7 +52,7 @@ LEVEL_INTRO = {
     "PILLAR_SPAWN": 2,
     "POWERUP_SPAWN": 12.0,
     "SCORE_LIMIT": 1000,
-    "HEART_SPAWN_TIME": 3,
+    "HEART_SPAWN_TIME": 6,
     "WAVE_SPEED" : 400,
     "BIRD_SPEED" : 400
 }
@@ -208,7 +208,7 @@ waves_x = 0
 # ========================
 hearts = []
 heart_speed = 200
-heart_spawn_time = 5
+heart_spawn_time = 0
 heart_timer = 0
 
 # Pillars
@@ -222,7 +222,7 @@ pillar_timer = 0
 
 powerups = []
 powerup_speed = 200
-powerup_spawn_time = 15
+powerup_spawn_time = 0
 powerup_timer = 0
 # ========================
 # VOGEL FRAMES (GESCHAALD)
