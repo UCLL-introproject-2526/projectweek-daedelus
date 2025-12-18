@@ -17,7 +17,7 @@ LEVEL_Y_START = 260
 LEVEL_SPACING = 50
 
 BG_SPEED = 300
-WAVE_SPEED = 200
+WAVE_SPEED = 0
 PILLAR_SPEED = 300
 
 MAX_LIVES = 3
@@ -29,7 +29,7 @@ hit_timer = 0
 LEVEL_SCORE_LIMIT = None
 
 # Vogel
-BIRD_SPEED = 500
+BIRD_SPEED = 0
 BIRD_SPAWN_TIME = 2.0
 BIRD_ANIM_SPEED = 0.15
 
@@ -53,6 +53,8 @@ LEVEL_INTRO = {
     "POWERUP_SPAWN": 12.0,
     "SCORE_LIMIT": 1000,
     "HEART_SPAWN_TIME": 3,
+    "WAVE_SPEED" : 400,
+    "BIRD_SPEED" : 400
 }
 
 LEVEL_EASY = {
@@ -63,6 +65,8 @@ LEVEL_EASY = {
     "POWERUP_SPAWN": 15.0,
     "SCORE_LIMIT": 2000,
     "HEART_SPAWN_TIME": 10,
+    "WAVE_SPEED" : 600,
+    "BIRD_SPEED" : 600
 }
 
 LEVEL_MEDIUM = {
@@ -73,6 +77,8 @@ LEVEL_MEDIUM = {
     "POWERUP_SPAWN": 20.0,
     "SCORE_LIMIT": 3000,
     "HEART_SPAWN_TIME": 25,
+    "WAVE_SPEED" : 800,
+    "BIRD_SPEED" : 800
 }
 
 LEVEL_IMPOSSIBLE = {
@@ -83,6 +89,8 @@ LEVEL_IMPOSSIBLE = {
     "POWERUP_SPAWN": 17,
     "SCORE_LIMIT": None,
     "HEART_SPAWN_TIME": 20,
+    "WAVE_SPEED" : 1000,
+    "BIRD_SPEED" : 1000
 }
 
 # ========================
@@ -675,6 +683,8 @@ while running:
                 powerup_spawn_time = current_level["POWERUP_SPAWN"]
                 LEVEL_SCORE_LIMIT = current_level["SCORE_LIMIT"]
                 heart_spawn_time = current_level["HEART_SPAWN_TIME"]
+                BIRD_SPEED = current_level["BIRD_SPEED"]
+                WAVE_SPEED = current_level["WAVE_SPEED"]
 
                 lives = MAX_LIVES
                 score = 0
@@ -707,6 +717,8 @@ while running:
                     PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
                     powerup_spawn_time = current_level["POWERUP_SPAWN"]
                     LEVEL_SCORE_LIMIT = current_level["SCORE_LIMIT"]
+                    BIRD_SPEED = current_level["BIRD_SPEED"]
+                    WAVE_SPEED = current_level["WAVE_SPEED"]
                     lives = MAX_LIVES
                     reset_game()
                     state = PLAYING
