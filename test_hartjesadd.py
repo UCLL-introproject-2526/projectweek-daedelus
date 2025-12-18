@@ -164,8 +164,8 @@ waves = pygame.image.load("Sprites/waves.png").convert_alpha()
 waves = pygame.transform.scale(waves, (WINDOW_WIDTH, WINDOW_HEIGHT // 4))
 waves_mask = pygame.mask.from_surface(waves)
 
-icarus_corner = pygame.image.load("Sprites/icarus25.png").convert_alpha()
-icarus_corner = pygame.transform.scale_by(icarus_corner, 0.2)  # pas schaal aan indien nodig
+icarus_corner = pygame.image.load("Sprites/Icarus_logo.png").convert_alpha()
+icarus_corner = pygame.transform.scale_by(icarus_corner, 3)  # pas schaal aan indien nodig
 icarus_corner_rect = icarus_corner.get_rect(
     topleft=(10, 10)
 )
