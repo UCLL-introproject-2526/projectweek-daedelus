@@ -148,8 +148,13 @@ pygame.mixer.music.play(-1)
 # ========================
 # FONTS & IMAGES
 # ========================
-score_font = pygame.font.Font("fonts/Cinzel-VariableFont_wght.ttf", 24)
-font = pygame.font.Font('fonts/Cinzel-VariableFont_wght.ttf', 30)
+score_font = pygame.font.Font("fonts/Cinzel-VariableFont_wght.ttf", 35)
+end_score_font = pygame.font.Font('fonts/Cinzel-VariableFont_wght.ttf', 50)
+font = pygame.font.Font('fonts/Cinzel-VariableFont_wght.ttf', 35)
+
+font.set_bold(True)
+end_score_font.set_bold(True)
+
 
 Ui = pygame.image.load("Sprites/UI.png").convert_alpha()
 background = pygame.image.load("Sprites/background.png").convert()
@@ -648,16 +653,16 @@ def draw_game_over():
     # ✅ Full window image afhankelijk van doodsoorzaak en geschaald
     if last_death_cause == "pillar":
         img = pygame.transform.scale(game_over_pillar, (WINDOW_WIDTH, WINDOW_HEIGHT))
-        fontColor = (0,0,0)
+        fontColor = (196,190,19)
     elif last_death_cause == "sun":
         img = pygame.transform.scale(game_over_sun, (WINDOW_WIDTH, WINDOW_HEIGHT))
-        fontColor = (0,0,0)
+        fontColor = (196,190,19)
     elif last_death_cause == "wave":
         img = pygame.transform.scale(game_over_wave, (WINDOW_WIDTH, WINDOW_HEIGHT))
-        fontColor = (255,255,255)
+        fontColor = (196,190,19)
     else:
         img = pygame.transform.scale(game_over_bird, (WINDOW_WIDTH, WINDOW_HEIGHT))
-        fontColor = (200,0,255)
+        fontColor = (196,190,19)
 
     screen.blit(img, (0, 0))  # volledige achtergrond
 
@@ -670,12 +675,12 @@ def draw_game_over():
 
     # Score
     if game_over_timer > 1.5:
-        score_surf = font.render(f"Score: {int(score)}", True, fontColor)
+        score_surf = end_score_font.render(f"Score: {int(score)}", True, fontColor)
         screen.blit(score_surf, (center_x - score_surf.get_width() // 2, 260))
 
     # Record
     if game_over_timer > 2.0:
-        record_surf = font.render(f"Record: {record}", True, fontColor)
+        record_surf = end_score_font.render(f"Record: {record}", True, fontColor)
         screen.blit(record_surf, (center_x - record_surf.get_width() // 2, 300))
 
     # Knipperende instructie
@@ -684,7 +689,7 @@ def draw_game_over():
             info = font.render(
                 "Press SPACE to Retry or ESC to Exit",
                 True,
-                (200, 200, 200)
+                (196,190,19)
             )
             screen.blit(info, (center_x - info.get_width() // 2, 360))
 
