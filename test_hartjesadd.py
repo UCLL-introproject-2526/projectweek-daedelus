@@ -40,6 +40,8 @@ intro_timer = 0
 
 last_death_cause = None
 
+fontColor = (0,0,0)
+
 # Vogel
 BIRD_SPEED = 0
 BIRD_SPAWN_TIME = 2.0
@@ -188,7 +190,7 @@ icarus_1heart_shielded_mask = pygame.mask.from_surface(icarus_1heart)
 game_over_img = pygame.image.load("Sprites/game_over3.png").convert_alpha()
 game_over_img = pygame.transform.scale(game_over_img, (600, 200))
 
-game_over_bird = pygame.image.load("Sprites/Burning_death.png").convert_alpha()
+game_over_bird = pygame.image.load("Sprites/death_by_bird.png").convert_alpha()
 game_over_sun = pygame.image.load("Sprites/Burning_death.png").convert_alpha()
 game_over_wave = pygame.image.load("Sprites/death_by_wave.png").convert_alpha()
 game_over_pillar = pygame.image.load("Sprites/Icarus_pillar_death.png").convert_alpha()
@@ -646,12 +648,16 @@ def draw_game_over():
     # ✅ Full window image afhankelijk van doodsoorzaak en geschaald
     if last_death_cause == "pillar":
         img = pygame.transform.scale(game_over_pillar, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        fontColor = (0,0,0)
     elif last_death_cause == "sun":
         img = pygame.transform.scale(game_over_sun, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        fontColor = (0,0,0)
     elif last_death_cause == "wave":
         img = pygame.transform.scale(game_over_wave, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        fontColor = (255,255,255)
     else:
         img = pygame.transform.scale(game_over_bird, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        fontColor = (200,0,255)
 
     screen.blit(img, (0, 0))  # volledige achtergrond
 
@@ -664,12 +670,12 @@ def draw_game_over():
 
     # Score
     if game_over_timer > 1.5:
-        score_surf = font.render(f"Score: {int(score)}", True, (255, 255, 255))
+        score_surf = font.render(f"Score: {int(score)}", True, fontColor)
         screen.blit(score_surf, (center_x - score_surf.get_width() // 2, 260))
 
     # Record
     if game_over_timer > 2.0:
-        record_surf = font.render(f"Record: {record}", True, (255, 215, 0))
+        record_surf = font.render(f"Record: {record}", True, fontColor)
         screen.blit(record_surf, (center_x - record_surf.get_width() // 2, 300))
 
     # Knipperende instructie
