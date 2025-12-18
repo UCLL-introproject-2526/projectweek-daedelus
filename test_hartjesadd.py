@@ -12,6 +12,9 @@ WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 UI_BAR = 50
 
+shake_x = 0
+shake_y = 0
+
 LEVEL_X = 450
 LEVEL_Y_START = 260
 LEVEL_SPACING = 50
@@ -23,10 +26,16 @@ PILLAR_SPEED = 300
 MAX_LIVES = 3
 lives = 3
 
+# Screen shake
+SHAKE_DURATION = 0.25
+SHAKE_INTENSITY = 6
+shake_timer = 0
+
 HIT_COOLDOWN = 1.2
 hit_timer = 0
 
 LEVEL_SCORE_LIMIT = None
+
 
 # Vogel
 BIRD_SPEED = 0
@@ -263,21 +272,23 @@ def handle_keys():
 
 
 def infinite_background():
-    global bg_x
+    global bg_x, shake_x, shake_y
     bg_x -= BG_SPEED * dt
     if bg_x <= -WINDOW_WIDTH:
         bg_x = 0
-    screen.blit(background, (bg_x, 0))
-    screen.blit(background, (bg_x + WINDOW_WIDTH, 0))
+    screen.blit(background, (bg_x + shake_x, shake_y))
+    screen.blit(background, (bg_x + WINDOW_WIDTH + shake_x, shake_y))
+
 
 
 def infinite_waves():
-    global waves_x
+    global waves_x, shake_x, shake_y
     waves_x -= WAVE_SPEED * dt
     if waves_x <= -WINDOW_WIDTH:
         waves_x = 0
-    screen.blit(waves, (waves_x, WINDOW_HEIGHT - 100))
-    screen.blit(waves, (waves_x + WINDOW_WIDTH, WINDOW_HEIGHT - 100))
+    screen.blit(waves, (waves_x + shake_x, WINDOW_HEIGHT - 100 + shake_y))
+    screen.blit(waves, (waves_x + WINDOW_WIDTH + shake_x, WINDOW_HEIGHT - 100 + shake_y))
+
 
 
 def check_wave_collision():
@@ -417,56 +428,83 @@ def update_powerups():
         screen.blit(powerup_image, p)
 
 def load_level():
-    infinite_background()
-    infinite_waves()
+    global shake_timer, shake_x, shake_y
+
+
+    # ------------------------
+    # Screen shake offset
+    # ------------------------
+    if shake_timer > 0:
+        shake_x = random.randint(-SHAKE_INTENSITY, SHAKE_INTENSITY)
+        shake_y = random.randint(-SHAKE_INTENSITY, SHAKE_INTENSITY)
+    else:
+        shake_x = 0
+        shake_y = 0
+
+    # ------------------------
+    # ACHTERGROND (SHAKE)
+    # ------------------------
+    screen.blit(background, (bg_x + shake_x, shake_y))
+    screen.blit(background, (bg_x + WINDOW_WIDTH + shake_x, shake_y))
+
+    screen.blit(waves, (waves_x + shake_x, WINDOW_HEIGHT - 100 + shake_y))
+    screen.blit(waves, (waves_x + WINDOW_WIDTH + shake_x, WINDOW_HEIGHT - 100 + shake_y))
 
     draw_sun_glow()
 
+    # ------------------------
+    # POWERUPS & PILLARS (SHAKE)
+    # ------------------------
     update_powerups()
 
     for pillar in pillars:
-        pillar.draw()
+        screen.blit(pillar_img_flipped, (pillar.top_rect.x + shake_x, pillar.top_rect.y + shake_y))
+        screen.blit(pillar_img, (pillar.bottom_rect.x + shake_x, pillar.bottom_rect.y + shake_y))
 
-    # Bepaal welke Icarus sprite getoond moet worden
+    # ------------------------
+    # ICARUS (SHAKE)
+    # ------------------------
+    draw_x = icarus_rect.x + shake_x
+    draw_y = icarus_rect.y + shake_y
+
     if invincible_timer > 0:
-        # Laatste seconde → flikkeren
         if invincible_timer <= SHIELD_WARNING_TIME:
             if int(invincible_timer * 10) % 2 == 0:
                 if lives == 2:
-                    screen.blit(icarus_2hearts_shielded, icarus_rect)
+                    screen.blit(icarus_2hearts_shielded, (draw_x, draw_y))
                 elif lives == 1:
-                    screen.blit(icarus_1heart_shielded, icarus_rect)
+                    screen.blit(icarus_1heart_shielded, (draw_x, draw_y))
                 else:
-                    screen.blit(icarus_shielded, icarus_rect)
+                    screen.blit(icarus_shielded, (draw_x, draw_y))
         else:
             if lives == 2:
-                screen.blit(icarus_2hearts_shielded, icarus_rect)
+                screen.blit(icarus_2hearts_shielded, (draw_x, draw_y))
             elif lives == 1:
-                screen.blit(icarus_1heart_shielded, icarus_rect)
+                screen.blit(icarus_1heart_shielded, (draw_x, draw_y))
             else:
-                screen.blit(icarus_shielded, icarus_rect)
+                screen.blit(icarus_shielded, (draw_x, draw_y))
     else:
-        # normale hit-knipper
         if hit_timer <= 0 or int(hit_timer * 10) % 2 == 0:
             if lives == 2:
-                screen.blit(icarus_2hearts, icarus_rect)
+                screen.blit(icarus_2hearts, (draw_x, draw_y))
             elif lives == 1:
-                screen.blit(icarus_1heart, icarus_rect)
+                screen.blit(icarus_1heart, (draw_x, draw_y))
             else:
-                screen.blit(icarus, icarus_rect)
+                screen.blit(icarus, (draw_x, draw_y))
 
-
-
-
+    # ------------------------
+    # UI (GEEN SHAKE)
+    # ------------------------
     screen.blit(Ui, (0, 0))
-    Level_Ui = font.render(Level_Shown, True, (255,255,255), )
 
     score_text = score_font.render(f"Score: {int(score)}", True, (255, 255, 255))
     screen.blit(score_text, (10, 10))
-    screen.blit(Level_Ui, (WINDOW_WIDTH/2 - 100, 10))
 
+    Level_Ui = font.render(Level_Shown, True, (255, 255, 255))
+    screen.blit(Level_Ui, (WINDOW_WIDTH // 2 - 100, 10))
 
     draw_lives()
+
 
 class PillarPair:
     def __init__(self, x, gap_height):
@@ -512,21 +550,29 @@ class PillarPair:
             or self.bottom_hitbox.colliderect(player_rect)
         )
 def reset_game():
-    global bird_spawn_timer, bird_anim_timer, bird_frame_index, heart_timer, score, pillar_timer, powerup_timer, invincible_timer
+    global bird_spawn_timer, bird_anim_timer, bird_frame_index
+    global heart_timer, score, pillar_timer, powerup_timer
+    global invincible_timer, shake_timer, shake_x, shake_y
+
     bird_spawn_timer = 0
     bird_anim_timer = 0
     bird_frame_index = 0
     heart_timer = 0
     score = 0
-    BG_SPEED = 300
     pillar_timer = 0
-    invincible_timer = 0
     powerup_timer = 0
+    invincible_timer = 0
+
+    # 🔴 DIT WAS DE OORZAAK
+    shake_timer = 0
+    shake_x = 0
+    shake_y = 0
 
     pillars.clear()
-    hearts.clear() #toegevoegd
-    birds.clear() #toegevoegd
+    hearts.clear()
+    birds.clear()
     powerups.clear()
+
     icarus_rect.midleft = (80, UI_BAR + (WINDOW_HEIGHT - UI_BAR) // 2)
 
 def spawn_bird():
@@ -536,7 +582,7 @@ def spawn_bird():
 
 
 def update_birds():
-    global lives, hit_timer, state, record
+    global lives, hit_timer, state, record, shake_timer
 
     for bird in birds[:]:
         bird.x -= BIRD_SPEED * dt
@@ -556,7 +602,9 @@ def update_birds():
                 sound_library.play("oof")
                 lives -= 1
                 hit_timer = HIT_COOLDOWN
+                shake_timer = SHAKE_DURATION
                 birds.remove(bird)
+
 
                 # 🛑 Check voor game over
                 if lives <= 0:
@@ -751,6 +799,12 @@ while running:
         pygame.display.flip()
         dt = clock.tick(60) / 1000
         continue
+    # Screen shake timer (alleen tijdens spelen)
+    
+    if state == PLAYING and shake_timer > 0:
+        shake_timer -= dt
+
+
 
 
     handle_keys()
@@ -773,7 +827,8 @@ while running:
         if pillar.collides(icarus_rect) and hit_timer <= 0 and invincible_timer <= 0:
             lives -= 1
             hit_timer = HIT_COOLDOWN
-            sound_library.play("oof"),
+            shake_timer = SHAKE_DURATION
+            sound_library.play("oof")
             sound_library.play("hit")
 
             if lives <= 0:
