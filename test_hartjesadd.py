@@ -273,22 +273,30 @@ def handle_keys():
 
 def infinite_background():
     global bg_x, shake_x, shake_y
+
     bg_x -= BG_SPEED * dt
     if bg_x <= -WINDOW_WIDTH:
         bg_x = 0
+
     screen.blit(background, (bg_x + shake_x, shake_y))
     screen.blit(background, (bg_x + WINDOW_WIDTH + shake_x, shake_y))
 
 
-
 def infinite_waves():
     global waves_x, shake_x, shake_y
+
     waves_x -= WAVE_SPEED * dt
     if waves_x <= -WINDOW_WIDTH:
         waves_x = 0
-    screen.blit(waves, (waves_x + shake_x, WINDOW_HEIGHT - 100 + shake_y))
-    screen.blit(waves, (waves_x + WINDOW_WIDTH + shake_x, WINDOW_HEIGHT - 100 + shake_y))
 
+    screen.blit(
+        waves,
+        (waves_x + shake_x, WINDOW_HEIGHT - 100 + shake_y)
+    )
+    screen.blit(
+        waves,
+        (waves_x + WINDOW_WIDTH + shake_x, WINDOW_HEIGHT - 100 + shake_y)
+    )
 
 
 def check_wave_collision():
@@ -427,8 +435,11 @@ def update_powerups():
 
         screen.blit(powerup_image, p)
 
+
 def load_level():
     global shake_timer, shake_x, shake_y
+    infinite_background()
+    infinite_waves()
 
 
     # ------------------------
@@ -444,11 +455,9 @@ def load_level():
     # ------------------------
     # ACHTERGROND (SHAKE)
     # ------------------------
-    screen.blit(background, (bg_x + shake_x, shake_y))
-    screen.blit(background, (bg_x + WINDOW_WIDTH + shake_x, shake_y))
+    
 
-    screen.blit(waves, (waves_x + shake_x, WINDOW_HEIGHT - 100 + shake_y))
-    screen.blit(waves, (waves_x + WINDOW_WIDTH + shake_x, WINDOW_HEIGHT - 100 + shake_y))
+   
 
     draw_sun_glow()
 
@@ -617,9 +626,9 @@ def draw_game_over():
     global game_over_timer
     game_over_timer += dt
 
-    # achtergrond
-    infinite_background()
-    infinite_waves()
+    screen.blit(background, (0, 0))
+    screen.blit(waves, (0, WINDOW_HEIGHT - 100))
+
 
     # fade overlay
     overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -665,8 +674,10 @@ def game_over():
     state = GAME_OVER
 
 def draw_level_select():
-    infinite_background()
-    infinite_waves()
+    screen.blit(background, (0, 0))
+    screen.blit(waves, (0, WINDOW_HEIGHT - 100))
+
+
 
     screen.blit(font.render("Flight of Icarus", True, (212, 175, 55)),(LEVEL_X, LEVEL_Y_START - 100))
     screen.blit(font.render("Kies een level:", True, (255,255,255)), (LEVEL_X, LEVEL_Y_START - 50))
@@ -678,8 +689,9 @@ def draw_level_select():
     screen.blit(icarus_corner, icarus_corner_rect)
 
 def draw_level_completed():
-    infinite_background()
-    infinite_waves()
+    screen.blit(background, (0, 0))
+    screen.blit(waves, (0, WINDOW_HEIGHT - 100))
+
     screen.blit(
         font.render("Level Completed!", True, (212, 175, 55)),
         (WINDOW_WIDTH // 2 - 120, 180)
