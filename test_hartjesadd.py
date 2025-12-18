@@ -934,7 +934,8 @@ while running:
             last_death_cause = "wave"
             # update record als nodig
             if score > record:
-                game_over()
+                record = int(score)
+            game_over()
 
     score += dt * 20
     if LEVEL_SCORE_LIMIT is not None and score >= LEVEL_SCORE_LIMIT:
