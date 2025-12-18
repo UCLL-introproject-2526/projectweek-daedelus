@@ -2,8 +2,9 @@ import pygame
 import random
 from random import randrange
 
+# pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
-pygame.mixer.init()
+pygame.mixer.init() # DEZE WEG !!!
 
 # ========================
 # CONSTANTEN
@@ -143,7 +144,7 @@ record = 0
 # ========================
 pygame.mixer.music.load("Sound/Music/2.ogg")
 pygame.mixer.music.set_volume(0.3)
-pygame.mixer.music.play(-1)
+pygame.mixer.music.play(-1) # DEZE MAG WEG !!!
 
 # ========================
 # FONTS & IMAGES
@@ -356,7 +357,7 @@ class SoundLibrary:
         oof_sound = pygame.mixer.Sound("Sound/Soundeffect/Oof.ogg")
         oof_sound.set_volume(0.4)
 
-        hit_sound = pygame.mixer.Sound("Sound\Soundeffect\Hit.ogg")
+        hit_sound = pygame.mixer.Sound("Sound\Soundeffect\Hit.ogg") # BACKSLASH NAAR FORWARD SLASH!!!
         hit_sound.set_volume(1.0)
 
         bird_sound = pygame.mixer.Sound("Sound/Soundeffect/Bird.ogg")
@@ -365,7 +366,7 @@ class SoundLibrary:
         powerup_sound = pygame.mixer.Sound("Sound/Soundeffect/Powerup.ogg")
         powerup_sound.set_volume(1.0)
 
-        sun_sound = pygame.mixer.Sound("Sound\Soundeffect\Sun_damage.ogg")
+        sun_sound = pygame.mixer.Sound("Sound\Soundeffect\Sun_damage.ogg") # BACKSLASH
         sun_sound.set_volume(0.3)
 
 

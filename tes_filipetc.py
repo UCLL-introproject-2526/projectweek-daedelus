@@ -2,8 +2,8 @@ import pygame
 import random
 from random import randrange
 
+pygame.mixer.pre_init(44100, -16, 2, 512) # DEZE LINE!!!
 pygame.init()
-pygame.mixer.init()
 
 # ========================
 # CONSTANTEN
@@ -113,7 +113,7 @@ record = 0
 # MUSIC
 # ========================
 pygame.mixer.music.load("Sound/Music/2.ogg")
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.play(-1)  DEZE LIJN WEG!!!
 
 # ========================
 # FONTS & IMAGES
