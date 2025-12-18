@@ -721,15 +721,16 @@ def draw_level_completed():
     screen.blit(waves, (0, WINDOW_HEIGHT - 100))
 
     screen.blit(
-        font.render("Level Completed!", True, (212, 175, 55)),
+        font.render("Level Completed!", True, (196,190,19)
+),
         (WINDOW_WIDTH // 2 - 120, 180)
     )
     screen.blit(
-        font.render(f"Score: {int(score)}", True, (255, 255, 255)),
+        font.render(f"Score: {int(score)}", True, (196,190,19)),
         (WINDOW_WIDTH // 2 - 80, 240)
     )
     screen.blit(
-        font.render("Press ESC for Exit or SPACE for Next Level", True, (255, 255, 255)),
+        font.render("Press ESC for Exit or SPACE for Next Level", True, (196,190,19)),
         (50, 300)
     )
 
@@ -948,7 +949,7 @@ while running:
                 record = int(score)
             game_over()
 
-    score += dt * 20
+    score += dt * 30
     if LEVEL_SCORE_LIMIT is not None and score >= LEVEL_SCORE_LIMIT:
         state = LEVEL_COMPLETED
 

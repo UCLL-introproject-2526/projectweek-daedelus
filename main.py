@@ -721,16 +721,16 @@ def draw_level_completed():
     screen.blit(waves, (0, WINDOW_HEIGHT - 100))
 
     screen.blit(
-        font.render("Level Completed!", True, (212, 175, 55)),
+        font.render("Level Completed!", True, (196,190,19)),
         (WINDOW_WIDTH // 2 - 120, 180)
     )
     screen.blit(
-        font.render(f"Score: {int(score)}", True, (255, 255, 255)),
+        font.render(f"Score: {int(score)}", True, (196,190,19)),
         (WINDOW_WIDTH // 2 - 80, 240)
     )
     screen.blit(
-        font.render("Press ESC for Exit or SPACE for Next Level", True, (255, 255, 255)),
-        (50, 300)
+        font.render("Press ESC for Exit or SPACE for Next Level", True, (196,190,19)),
+        (15, 300)
     )
 
 def draw_intro_screen():
