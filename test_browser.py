@@ -651,7 +651,12 @@ def draw_level_completed():
 # ========================
 
 async def main():
-    global running, dt
+    global running, dt, state, lives, score, BG_SPEED, PILLAR_SPEED, BIRD_SPAWN_TIME
+    global PILLAR_SPAWN_TIME, powerup_spawn_time, LEVEL_SCORE_LIMIT
+    global BIRD_SPEED, WAVE_SPEED, bird_spawn_timer, bird_anim_timer
+    global bird_frame_index, heart_timer, pillar_timer, powerup_timer, invincible_timer
+    global pillars, hearts, birds, powerups
+    global current_level, Level_Shown, record, hit_timer, music_started
 
     while running:
         for event in pygame.event.get():
