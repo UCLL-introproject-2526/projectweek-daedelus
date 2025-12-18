@@ -17,7 +17,7 @@ LEVEL_Y_START = 260
 LEVEL_SPACING = 50
 
 BG_SPEED = 300
-WAVE_SPEED = 200
+WAVE_SPEED = 0
 PILLAR_SPEED = 300
 
 MAX_LIVES = 3
@@ -29,7 +29,7 @@ hit_timer = 0
 LEVEL_SCORE_LIMIT = None
 
 # Vogel
-BIRD_SPEED = 500
+BIRD_SPEED = 0
 BIRD_SPAWN_TIME = 2.0
 BIRD_ANIM_SPEED = 0.15
 
@@ -53,6 +53,8 @@ LEVEL_INTRO = {
     "POWERUP_SPAWN": 12.0,
     "SCORE_LIMIT": 1000,
     "HEART_SPAWN_TIME": 3,
+    "WAVE_SPEED" : 400,
+    "BIRD_SPEED" : 400
 }
 
 LEVEL_EASY = {
@@ -63,6 +65,8 @@ LEVEL_EASY = {
     "POWERUP_SPAWN": 15.0,
     "SCORE_LIMIT": 2000,
     "HEART_SPAWN_TIME": 10,
+    "WAVE_SPEED" : 600,
+    "BIRD_SPEED" : 600
 }
 
 LEVEL_MEDIUM = {
@@ -73,6 +77,8 @@ LEVEL_MEDIUM = {
     "POWERUP_SPAWN": 20.0,
     "SCORE_LIMIT": 3000,
     "HEART_SPAWN_TIME": 25,
+    "WAVE_SPEED" : 800,
+    "BIRD_SPEED" : 800
 }
 
 LEVEL_IMPOSSIBLE = {
@@ -80,9 +86,11 @@ LEVEL_IMPOSSIBLE = {
     "PILLAR_SPEED": 700,
     "BIRD_SPAWN": 0.4,
     "PILLAR_SPAWN": 0.7,
-    "POWERUP_SPAWN": 17,
+    "POWERUP_SPAWN": 20,
     "SCORE_LIMIT": None,
-    "HEART_SPAWN_TIME": 20,
+    "HEART_SPAWN_TIME": 15,
+    "WAVE_SPEED" : 1000,
+    "BIRD_SPEED" : 1000
 }
 
 # ========================
@@ -108,6 +116,8 @@ LEVEL_SELECT = 0
 PLAYING = 1
 GAME_OVER = 2
 LEVEL_COMPLETED = 3
+
+game_over_timer = 0
 
 state = LEVEL_SELECT
 current_level = None
@@ -556,44 +566,54 @@ def update_birds():
 
 
 def draw_game_over():
-    # achtergrond zoals vroeger
+    global game_over_timer
+    game_over_timer += dt
+
+    # achtergrond
     infinite_background()
     infinite_waves()
 
-    # donkere overlay
+    # fade overlay
     overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
-    overlay.set_alpha(120)
+    alpha = min(180, int(game_over_timer * 120))
+    overlay.set_alpha(alpha)
     overlay.fill((0, 0, 0))
     screen.blit(overlay, (0, 0))
 
-    # 🖼️ GAME OVER AFBEELDING
-    go_rect = game_over_img.get_rect(
-        center=(WINDOW_WIDTH // 2, 120)
-    )
-    screen.blit(game_over_img, go_rect)
+    center_x = WINDOW_WIDTH // 2
 
-    # score
-    screen.blit(
-        font.render(f"Score: {int(score)}", True, (255, 255, 255)),
-        (WINDOW_WIDTH // 2 - 80, 260),
-    )
+    # 🟥 GAME OVER komt van boven
+    if game_over_timer > 0.4:
+        t = min(1, (game_over_timer - 0.4) / 0.8)
+        y = -200 + t * 320
+        go_rect = game_over_img.get_rect(center=(center_x, y))
+        screen.blit(game_over_img, go_rect)
 
-    # record
-    screen.blit(
-        font.render(f"Record: {record}", True, (255, 215, 0)),
-        (WINDOW_WIDTH // 2 - 80, 300),
-    )
+    # 🟨 Score
+    if game_over_timer > 1.5:
+        score_surf = font.render(f"Score: {int(score)}", True, (255, 255, 255))
+        screen.blit(score_surf, (center_x - score_surf.get_width() // 2, 260))
 
-    # ✅ DIT DEEL BLIJFT (zoals jij wilde)
-    screen.blit(
-        font.render("Press ESC for Exit or SPACE for Retry", True, (255, 255, 255)),
-        (50, 360)
-    )
+    # 🟨 Record
+    if game_over_timer > 2.0:
+        record_surf = font.render(f"Record: {record}", True, (255, 215, 0))
+        screen.blit(record_surf, (center_x - record_surf.get_width() // 2, 300))
+
+    # 🟩 Knipperende instructie (arcade-style)
+    if game_over_timer > 2.6:
+        if int(game_over_timer * 2) % 2 == 0:
+            info = font.render(
+                "Press SPACE to Retry or ESC to Exit",
+                True,
+                (200, 200, 200)
+            )
+            screen.blit(info, (center_x - info.get_width() // 2, 360))
 
 def game_over():
-    global state, record
+    global state, record, game_over_timer
     if score > record:
         record = int(score)
+    game_over_timer = 0
     state = GAME_OVER
 
 def draw_level_select():
@@ -663,12 +683,14 @@ while running:
                 powerup_spawn_time = current_level["POWERUP_SPAWN"]
                 LEVEL_SCORE_LIMIT = current_level["SCORE_LIMIT"]
                 heart_spawn_time = current_level["HEART_SPAWN_TIME"]
+                BIRD_SPEED = current_level["BIRD_SPEED"]
+                WAVE_SPEED = current_level["WAVE_SPEED"]
 
                 lives = MAX_LIVES
                 score = 0
                 reset_game()
-                heart_timer = powerup_spawn_time / 2 - 5
-                powerup_timer = powerup_spawn_time / 2
+                #heart_timer = powerup_spawn_time / 2 - 5
+                #powerup_timer = powerup_spawn_time / 2
                 state = PLAYING
 
         if state == LEVEL_COMPLETED and event.type == pygame.KEYDOWN:
@@ -695,12 +717,14 @@ while running:
                     PILLAR_SPAWN_TIME = current_level["PILLAR_SPAWN"]
                     powerup_spawn_time = current_level["POWERUP_SPAWN"]
                     LEVEL_SCORE_LIMIT = current_level["SCORE_LIMIT"]
+                    BIRD_SPEED = current_level["BIRD_SPEED"]
+                    WAVE_SPEED = current_level["WAVE_SPEED"]
                     lives = MAX_LIVES
                     reset_game()
                     state = PLAYING
 
 
-        if state == GAME_OVER and event.type == pygame.KEYDOWN:
+        if state == GAME_OVER and event.type == pygame.KEYDOWN and game_over_timer > 2.6:
             if event.key == pygame.K_SPACE:
                 reset_game()
                 lives = MAX_LIVES
