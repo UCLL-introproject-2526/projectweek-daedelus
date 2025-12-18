@@ -38,6 +38,8 @@ LEVEL_SCORE_LIMIT = None
 
 intro_timer = 0
 
+last_death_cause = None
+
 # Vogel
 BIRD_SPEED = 0
 BIRD_SPAWN_TIME = 2.0
@@ -186,6 +188,14 @@ icarus_1heart_shielded_mask = pygame.mask.from_surface(icarus_1heart)
 game_over_img = pygame.image.load("Sprites/game_over3.png").convert_alpha()
 game_over_img = pygame.transform.scale(game_over_img, (600, 200))
 
+game_over_bird = pygame.image.load("Sprites/Burning_death.png").convert_alpha()
+game_over_sun = pygame.image.load("Sprites/Burning_death.png").convert_alpha()
+game_over_wave = pygame.image.load("Sprites/death_by_wave.png").convert_alpha()
+game_over_pillar = pygame.image.load("Sprites/Burning_death.png").convert_alpha()
+
+for img in [game_over_pillar, game_over_sun, game_over_wave, game_over_bird]:
+    img = pygame.transform.scale(img, (WINDOW_WIDTH, WINDOW_HEIGHT))
+
 sun_surface = pygame.Surface((WINDOW_WIDTH, SUN_HEIGHT), pygame.SRCALPHA)
 sun_surface.fill((255, 200, 0, 180))  # zelfde kleur als glow
 sun_mask = pygame.mask.from_surface(sun_surface)
@@ -306,6 +316,7 @@ def infinite_waves():
 
 
 def check_wave_collision():
+    global last_death_cause
     wave_y = WINDOW_HEIGHT - 100
 
     offset_x1 = waves_x - icarus_rect.x
@@ -317,15 +328,11 @@ def check_wave_collision():
     offset_y2 = wave_y - icarus_rect.y
     if icarus_mask.overlap(waves_mask, (offset_x2, offset_y2)):
         return True
-    if lives <= 0:
-        game_over()
 
     return False
 
 def check_sun_collision():
     penetration = (UI_BAR + SUN_HEIGHT) - icarus_rect.top
-    if lives <= 0:
-                    game_over()
     return penetration > SUN_TOLERANCE
     
 
@@ -622,7 +629,9 @@ def update_birds():
 
 
                 # 🛑 Check voor game over
+                global last_death_cause
                 if lives <= 0:
+                    last_death_cause = "bird"
                     game_over()
 
         screen.blit(bird_frames[bird_frame_index], bird)
@@ -632,37 +641,38 @@ def draw_game_over():
     global game_over_timer
     game_over_timer += dt
 
-    screen.blit(background, (0, 0))
-    screen.blit(waves, (0, WINDOW_HEIGHT - 100))
-
-
-    # fade overlay
-    overlay = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
-    alpha = min(180, int(game_over_timer * 120))
-    overlay.set_alpha(alpha)
-    overlay.fill((0, 0, 0))
-    screen.blit(overlay, (0, 0))
-
     center_x = WINDOW_WIDTH // 2
 
-    # 🟥 GAME OVER komt van boven
+    # ✅ Full window image afhankelijk van doodsoorzaak en geschaald
+    if last_death_cause == "pillar":
+        img = pygame.transform.scale(game_over_pillar, (WINDOW_WIDTH, WINDOW_HEIGHT))
+    elif last_death_cause == "sun":
+        img = pygame.transform.scale(game_over_sun, (WINDOW_WIDTH, WINDOW_HEIGHT))
+    elif last_death_cause == "wave":
+        img = pygame.transform.scale(game_over_wave, (WINDOW_WIDTH, WINDOW_HEIGHT))
+    else:
+        img = pygame.transform.scale(game_over_bird, (WINDOW_WIDTH, WINDOW_HEIGHT))
+
+    screen.blit(img, (0, 0))  # volledige achtergrond
+
+    # Originele game_over_img animatie
     if game_over_timer > 0.4:
         t = min(1, (game_over_timer - 0.4) / 0.8)
         y = -200 + t * 320
         go_rect = game_over_img.get_rect(center=(center_x, y))
         screen.blit(game_over_img, go_rect)
 
-    # 🟨 Score
+    # Score
     if game_over_timer > 1.5:
         score_surf = font.render(f"Score: {int(score)}", True, (255, 255, 255))
         screen.blit(score_surf, (center_x - score_surf.get_width() // 2, 260))
 
-    # 🟨 Record
+    # Record
     if game_over_timer > 2.0:
         record_surf = font.render(f"Record: {record}", True, (255, 215, 0))
         screen.blit(record_surf, (center_x - record_surf.get_width() // 2, 300))
 
-    # 🟩 Knipperende instructie (arcade-style)
+    # Knipperende instructie
     if game_over_timer > 2.6:
         if int(game_over_timer * 2) % 2 == 0:
             info = font.render(
@@ -671,6 +681,7 @@ def draw_game_over():
                 (200, 200, 200)
             )
             screen.blit(info, (center_x - info.get_width() // 2, 360))
+
 
 def game_over():
     global state, record, game_over_timer
@@ -713,6 +724,21 @@ def draw_level_completed():
 
 def draw_intro_screen():
     screen.blit(intro_screen_img, (0, 0))
+
+def check_pillar_collision(pillar):
+    global lives, hit_timer, shake_timer, last_death_cause
+    if pillar.collides(icarus_rect) and hit_timer <= 0 and invincible_timer <= 0:
+        lives -= 1
+        hit_timer = HIT_COOLDOWN
+        shake_timer = SHAKE_DURATION
+        sound_library.play("oof")
+        sound_library.play("hit")
+
+        if lives <= 0:
+            last_death_cause = "pillar"
+            game_over()
+        return True
+    return False
 
 
 
@@ -865,27 +891,11 @@ while running:
         pillars.append(PillarPair(WINDOW_WIDTH + 100, gap))
         pillar_timer = 0
 
-    # ⬇️ ELKE FRAME
     for pillar in pillars:
         pillar.update()
-
-        if pillar.collides(icarus_rect) and hit_timer <= 0 and invincible_timer <= 0:
-            lives -= 1
-            hit_timer = HIT_COOLDOWN
-            shake_timer = SHAKE_DURATION
-            sound_library.play("oof")
-            sound_library.play("hit")
-
-            if lives <= 0:
-                if score > record:
-                    game_over()
+        if check_pillar_collision(pillar):
             break
 
-        if not pillar.passed and pillar.x + PILLAR_WIDTH < icarus_rect.x:
-            pillar.passed = True
-            score += 10
-
-    pillars[:] = [p for p in pillars if p.x > -PILLAR_WIDTH]
 
     bird_spawn_timer += dt
     if bird_spawn_timer >= BIRD_SPAWN_TIME:
@@ -909,6 +919,9 @@ while running:
         hit_timer = HIT_COOLDOWN 
         sound_library.play("oof")
         sound_library.play("sun")
+        if lives <= 0:
+            last_death_cause = "sun"
+            game_over()
 
     # zee raakt → 1 leven verliezen
     if check_wave_collision() and hit_timer <= 0 and invincible_timer <= 0:
@@ -918,6 +931,7 @@ while running:
         sound_library.play("oof")
 
         if lives <= 0:
+            last_death_cause = "wave"
             # update record als nodig
             if score > record:
                 game_over()
