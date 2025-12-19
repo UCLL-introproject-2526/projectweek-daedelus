@@ -78,7 +78,7 @@ LEVEL_EASY = {
     "BIRD_SPAWN": 1.3,
     "PILLAR_SPAWN": 1.7,
     "POWERUP_SPAWN": 15.0,
-    "SCORE_LIMIT": 2000,
+    "SCORE_LIMIT": 20,
     "HEART_SPAWN_TIME": 10,
     "WAVE_SPEED" : 600,
     "BIRD_SPEED" : 600
@@ -730,12 +730,24 @@ def draw_level_completed():
     screen.blit(waves, (0, WINDOW_HEIGHT - 100))
 
     screen.blit(
+        font.render("Level Completed!", True, (0,0,0)),
+        (WINDOW_WIDTH // 2 +2 - 120, 180)
+    )
+    screen.blit(
         font.render("Level Completed!", True, (196,190,19)),
         (WINDOW_WIDTH // 2 - 120, 180)
+    ) 
+    screen.blit(
+        font.render(f"Score: {int(score)}", True, (0,0,0)),
+        (WINDOW_WIDTH // 2 + 2 - 80, 240)
     )
     screen.blit(
         font.render(f"Score: {int(score)}", True, (196,190,19)),
         (WINDOW_WIDTH // 2 - 80, 240)
+    )
+    screen.blit(
+        font.render("Press ESC for Exit or SPACE for Next Level", True, (0,0,0)),
+        (15 + 2, 300)
     )
     screen.blit(
         font.render("Press ESC for Exit or SPACE for Next Level", True, (196,190,19)),
