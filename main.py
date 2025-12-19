@@ -1,6 +1,7 @@
 import pygame
 import random
 from random import randrange
+import math
 
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
@@ -42,6 +43,10 @@ intro_timer = 0
 last_death_cause = None
 
 fontColor = (0,0,0)
+
+speed_active = False
+speed_anim_timer = 0
+speed_offset = 0
 
 # Vogel
 BIRD_SPEED = 0
@@ -212,6 +217,8 @@ powerup_mask = pygame.mask.from_surface(powerup_image)
 intro_screen_img = pygame.image.load("Sprites/Into_sequence.png").convert_alpha()
 intro_screen_img = pygame.transform.scale(intro_screen_img, (WINDOW_WIDTH, WINDOW_HEIGHT))
 
+speed_stripes = pygame.image.load("Sprites/Speed_Stripes.png").convert_alpha()
+speed_stripes = pygame.transform.scale_by(speed_stripes, 1.1)  
 
 SCALE = 0.5  # kleiner = 0.6, groter = 0.8
 
@@ -280,8 +287,11 @@ bird_frame_index = 0
 # FUNCTIES
 # ========================
 def handle_keys():
+    global speed_active
     keys = pygame.key.get_pressed()
     speed = 300 * dt
+
+    speed_active = keys[pygame.K_RIGHT]
 
     if keys[pygame.K_UP] and icarus_rect.top > UI_BAR:
         icarus_rect.y -= speed
@@ -291,6 +301,7 @@ def handle_keys():
         icarus_rect.x -= speed
     if keys[pygame.K_RIGHT] and icarus_rect.right < WINDOW_WIDTH:
         icarus_rect.x += speed
+
 
 
 def infinite_background():
@@ -494,6 +505,16 @@ def load_level():
     # ------------------------
     draw_x = icarus_rect.x + shake_x
     draw_y = icarus_rect.y + shake_y
+
+
+    if speed_active:
+        stripes_rect = speed_stripes.get_rect(
+        center=(
+            icarus_rect.centerx - 50 + speed_offset + shake_x,
+            icarus_rect.centery + shake_y
+            )
+        )
+        screen.blit(speed_stripes, stripes_rect)
 
     if invincible_timer > 0:
         if invincible_timer <= SHIELD_WARNING_TIME:
@@ -935,9 +956,17 @@ while running:
         bird_spawn_timer = 0
 
     bird_anim_timer += dt
+    
     if bird_anim_timer >= BIRD_ANIM_SPEED:
         bird_anim_timer = 0
         bird_frame_index = (bird_frame_index + 1) % len(bird_frames)
+
+    if speed_active:
+        speed_anim_timer += dt * 12
+        speed_offset = int(math.sin(speed_anim_timer) * 6)
+    else:
+        speed_anim_timer = 0
+        speed_offset = 0
 
     load_level()
     update_birds()
