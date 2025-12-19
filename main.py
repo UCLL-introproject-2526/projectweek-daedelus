@@ -158,7 +158,6 @@ end_score_font.set_bold(True)
 
 Ui = pygame.image.load("Sprites/UI.png").convert_alpha()
 background = pygame.image.load("Sprites/background.png").convert()
-background = pygame.transform.scale(background, (WINDOW_WIDTH, WINDOW_HEIGHT + UI_BAR))
 
 waves = pygame.image.load("Sprites/waves.png").convert_alpha()
 waves = pygame.transform.scale(waves, (WINDOW_WIDTH, WINDOW_HEIGHT // 4))
