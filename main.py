@@ -830,6 +830,7 @@ while running:
                 state = PLAYING
 
         if state == LEVEL_COMPLETED and event.type == pygame.KEYDOWN:
+            record = 0
             if event.key == pygame.K_ESCAPE:  # Exit
                 state = LEVEL_SELECT
                 current_level = None
