@@ -6,10 +6,7 @@ import math
 pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
 
-
-# ========================
 # CONSTANTEN
-# ========================
 WINDOW_WIDTH = 800
 WINDOW_HEIGHT = 500
 UI_BAR = 50
@@ -113,9 +110,7 @@ LEVEL_IMPOSSIBLE = {
     "BIRD_SPEED" : 1000
 }
 
-# ========================
 # SETUP
-# ========================
 Level_Shown = None
 Game_level1 = "1 - Intro"
 Game_level2 = "2 - Easy"
@@ -129,9 +124,7 @@ dt = 0
 score = 0
 music_started = False        #muziek begint enkel bij player input in de browser
 
-# ========================
 # GAME STATES
-# ========================
 LEVEL_SELECT = 0
 PLAYING = 1
 GAME_OVER = 2
@@ -144,22 +137,17 @@ state = LEVEL_SELECT
 current_level = None
 record = 0
 
-# ========================
 # MUSIC
-# ========================
 pygame.mixer.music.load("Sound/Music/2.ogg")
 pygame.mixer.music.set_volume(0.3)
 
-# ========================
 # FONTS & IMAGES
-# ========================
 score_font = pygame.font.Font("fonts/Cinzel-VariableFont_wght.ttf", 35)
 end_score_font = pygame.font.Font('fonts/Cinzel-VariableFont_wght.ttf', 50)
 font = pygame.font.Font('fonts/Cinzel-VariableFont_wght.ttf', 35)
 
 font.set_bold(True)
 end_score_font.set_bold(True)
-
 
 Ui = pygame.image.load("Sprites/UI.png").convert_alpha()
 background = pygame.image.load("Sprites/background.png").convert()
@@ -171,8 +159,7 @@ waves_mask = pygame.mask.from_surface(waves)
 icarus_corner = pygame.image.load("Sprites/Icarus_logo.png").convert_alpha()
 icarus_corner = pygame.transform.scale_by(icarus_corner, 3)  # pas schaal aan indien nodig
 icarus_corner_rect = icarus_corner.get_rect(
-    topleft=(10, 10)
-)
+    topleft=(10, 10))
 
 heart_image = pygame.image.load('Sprites/heart.png').convert_alpha()
 heart_mask = pygame.mask.from_surface(heart_image)
@@ -235,15 +222,11 @@ level_impossible_img = pygame.transform.scale_by(
     pygame.image.load("Sprites/impossible4.png").convert_alpha(), SCALE
 )
 
-# ========================
 # BACKGROUND VARS
-# ========================
 bg_x = 0
 waves_x = 0
 
-# ========================
 # HEART PICKUPS
-# ========================
 hearts = []
 heart_speed = 200
 heart_spawn_time = 0
@@ -262,9 +245,8 @@ powerups = []
 powerup_speed = 200
 powerup_spawn_time = 0
 powerup_timer = 0
-# ========================
+
 # VOGEL FRAMES (GESCHAALD)
-# ========================
 bird_frames = []
 for img in [
     "Sprites/bird1.png",
@@ -283,9 +265,7 @@ bird_spawn_timer = 0
 bird_anim_timer = 0
 bird_frame_index = 0
 
-# ========================
 # FUNCTIES
-# ========================
 def handle_keys():
     global speed_active
     keys = pygame.key.get_pressed()
@@ -314,7 +294,6 @@ def infinite_background():
     screen.blit(background, (bg_x + shake_x, shake_y))
     screen.blit(background, (bg_x + WINDOW_WIDTH + shake_x, shake_y))
 
-
 def infinite_waves():
     global waves_x, shake_x, shake_y
 
@@ -330,7 +309,6 @@ def infinite_waves():
         waves,
         (waves_x + WINDOW_WIDTH + shake_x, WINDOW_HEIGHT - 100 + shake_y)
     )
-
 
 def check_wave_collision():
     global last_death_cause
@@ -351,8 +329,6 @@ def check_wave_collision():
 def check_sun_collision():
     penetration = (UI_BAR + SUN_HEIGHT) - icarus_rect.top
     return penetration > SUN_TOLERANCE
-    
-
 
 def spawn_heart():
     heart_rect = heart_image.get_rect(
@@ -382,7 +358,6 @@ class SoundLibrary:
 
         sun_sound = pygame.mixer.Sound("Sound/Soundeffect/Sun_damage.ogg") 
         sun_sound.set_volume(0.3)
-
 
         self.sounds = {
             "heart": heart_sound,
@@ -472,9 +447,7 @@ def load_level():
     infinite_waves()
 
 
-    # ------------------------
     # Screen shake offset
-    # ------------------------
     if shake_timer > 0:
         shake_x = random.randint(-SHAKE_INTENSITY, SHAKE_INTENSITY)
         shake_y = random.randint(-SHAKE_INTENSITY, SHAKE_INTENSITY)
@@ -482,27 +455,18 @@ def load_level():
         shake_x = 0
         shake_y = 0
 
-    # ------------------------
     # ACHTERGROND (SHAKE)
-    # ------------------------
-    
-
-   
 
     draw_sun_glow()
 
-    # ------------------------
     # POWERUPS & PILLARS (SHAKE)
-    # ------------------------
     update_powerups()
 
     for pillar in pillars:
         screen.blit(pillar_img_flipped, (pillar.top_rect.x + shake_x, pillar.top_rect.y + shake_y))
         screen.blit(pillar_img, (pillar.bottom_rect.x + shake_x, pillar.bottom_rect.y + shake_y))
 
-    # ------------------------
     # ICARUS (SHAKE)
-    # ------------------------
     draw_x = icarus_rect.x + shake_x
     draw_y = icarus_rect.y + shake_y
 
@@ -541,9 +505,7 @@ def load_level():
             else:
                 screen.blit(icarus, (draw_x, draw_y))
 
-    # ------------------------
     # UI (GEEN SHAKE)
-    # ------------------------
     screen.blit(Ui, (0, 0))
 
     score_text = score_font.render(f"Score: {int(score)}", True, (255, 255, 255))
@@ -612,7 +574,6 @@ def reset_game():
     powerup_timer = 0
     invincible_timer = 0
 
-    # 🔴 DIT WAS DE OORZAAK
     shake_timer = 0
     shake_x = 0
     shake_y = 0
@@ -655,7 +616,6 @@ def update_birds():
                 birds.remove(bird)
 
 
-                # 🛑 Check voor game over
                 global last_death_cause
                 if lives <= 0:
                     last_death_cause = "bird"
@@ -670,7 +630,7 @@ def draw_game_over():
 
     center_x = WINDOW_WIDTH // 2
 
-    # ✅ Full window image afhankelijk van doodsoorzaak en geschaald
+    #Full window image afhankelijk van doodsoorzaak en geschaald
     if last_death_cause == "pillar":
         img = pygame.transform.scale(game_over_pillar, (WINDOW_WIDTH, WINDOW_HEIGHT))
         fontColor = (196,190,19)
@@ -735,8 +695,6 @@ def draw_level_select():
     screen.blit(background, (0, 0))
     screen.blit(waves, (0, WINDOW_HEIGHT - 100))
 
-
-
     screen.blit(font.render("Flight of Icarus", True, (212, 175, 55)),(LEVEL_X, LEVEL_Y_START - 100))
     screen.blit(font.render("Kies een level:", True, (255,255,255)), (LEVEL_X, LEVEL_Y_START - 50))
     screen.blit(level_intro_img, (LEVEL_X, LEVEL_Y_START))
@@ -794,19 +752,16 @@ def check_pillar_collision(pillar):
     return False
 
 
-
-# ========================
 # MAIN LOOP
-# ========================
 while running:
     dt = clock.tick(60) / 1000
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-        if event.type == pygame.KEYDOWN and not music_started: #|
-            pygame.mixer.music.play(-1)                        #| start muziek pas na de input op browser ?
-            music_started = True                               #|
+        if event.type == pygame.KEYDOWN and not music_started: 
+            pygame.mixer.music.play(-1)                        #start muziek pas na de input op browser ?
+            music_started = True                               
 
 
         if state == LEVEL_SELECT and event.type == pygame.KEYDOWN:
@@ -876,7 +831,6 @@ while running:
                     reset_game()
                     state = PLAYING
 
-
         if state == GAME_OVER and event.type == pygame.KEYDOWN and game_over_timer > 2.6:
             if event.key == pygame.K_SPACE:
                 reset_game()
@@ -885,7 +839,6 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 state = LEVEL_SELECT
                 current_level = None
-
 
     if state == LEVEL_SELECT:
         draw_level_select()
@@ -925,11 +878,6 @@ while running:
     
     if state == PLAYING and shake_timer > 0:
         shake_timer -= dt
-
-
-
-
-
 
     handle_keys()
 
