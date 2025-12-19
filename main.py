@@ -44,6 +44,7 @@ fontColor = (0,0,0)
 speed_active = False
 speed_anim_timer = 0
 speed_offset = 0
+woosh_playing = False
 
 # Vogel
 BIRD_SPEED = 0
@@ -140,6 +141,7 @@ record = 0
 # MUSIC
 pygame.mixer.music.load("Sound/Music/2.ogg")
 pygame.mixer.music.set_volume(0.3)
+
 
 # FONTS & IMAGES
 score_font = pygame.font.Font("fonts/Cinzel-VariableFont_wght.ttf", 35)
@@ -267,20 +269,34 @@ bird_frame_index = 0
 
 # FUNCTIES
 def handle_keys():
-    global speed_active
+    global speed_active, woosh_playing
+
     keys = pygame.key.get_pressed()
     speed = 300 * dt
 
-    speed_active = keys[pygame.K_RIGHT]
-
+    # Vertical movement
     if keys[pygame.K_UP] and icarus_rect.top > UI_BAR:
         icarus_rect.y -= speed
     if keys[pygame.K_DOWN] and icarus_rect.bottom < WINDOW_HEIGHT:
         icarus_rect.y += speed
     if keys[pygame.K_LEFT] and icarus_rect.left > 0:
         icarus_rect.x -= speed
+
+    # RIGHT = speed boost
     if keys[pygame.K_RIGHT] and icarus_rect.right < WINDOW_WIDTH:
+        speed_active = True
+
+        if not woosh_playing:
+            sound_library.sounds["woosh"].play(-1)
+            woosh_playing = True
+
         icarus_rect.x += speed
+    else:
+        speed_active = False
+        if woosh_playing:
+            sound_library.sounds["woosh"].stop()
+            woosh_playing = False
+        
 
 
 
@@ -359,6 +375,9 @@ class SoundLibrary:
         sun_sound = pygame.mixer.Sound("Sound/Soundeffect/Sun_damage.ogg") 
         sun_sound.set_volume(0.3)
 
+        woosh_sound = pygame.mixer.Sound("Sound/Soundeffect/whoosh.ogg")
+        woosh_sound.set_volume(0.5)
+
         self.sounds = {
             "heart": heart_sound,
             "splash": splash_sound,
@@ -366,7 +385,8 @@ class SoundLibrary:
             "hit": hit_sound,
             "bird": bird_sound,
             "powerup": powerup_sound,
-            "sun": sun_sound
+            "sun": sun_sound,
+            "woosh": woosh_sound
             
             
         }
@@ -376,6 +396,12 @@ class SoundLibrary:
             self.sounds[sound_id].play()
 
 sound_library = SoundLibrary()
+
+def stop_all_looping_sounds():
+    global woosh_playing
+    if woosh_playing:
+        sound_library.sounds["woosh"].stop()
+        woosh_playing = False
 
 def update_hearts():
     global lives
@@ -479,6 +505,8 @@ def load_level():
             )
         )
         screen.blit(speed_stripes, stripes_rect)
+        
+        
 
     if invincible_timer > 0:
         if invincible_timer <= SHIELD_WARNING_TIME:
