@@ -218,7 +218,7 @@ intro_screen_img = pygame.image.load("Sprites/Into_sequence.png").convert_alpha(
 intro_screen_img = pygame.transform.scale(intro_screen_img, (WINDOW_WIDTH, WINDOW_HEIGHT))
 
 speed_stripes = pygame.image.load("Sprites/Speed_Stripes.png").convert_alpha()
-speed_stripes = pygame.transform.scale_by(speed_stripes, 1.1)  
+speed_stripes = pygame.transform.scale_by(speed_stripes, 1)  
 
 SCALE = 0.5  # kleiner = 0.6, groter = 0.8
 
@@ -510,7 +510,7 @@ def load_level():
     if speed_active:
         stripes_rect = speed_stripes.get_rect(
         center=(
-            icarus_rect.centerx - 50 + speed_offset + shake_x,
+            icarus_rect.centerx - 55 + speed_offset + shake_x,
             icarus_rect.centery + shake_y
             )
         )
