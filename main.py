@@ -164,8 +164,8 @@ waves = pygame.image.load("Sprites/waves.png").convert_alpha()
 waves = pygame.transform.scale(waves, (WINDOW_WIDTH, WINDOW_HEIGHT // 4))
 waves_mask = pygame.mask.from_surface(waves)
 
-icarus_corner = pygame.image.load("Sprites/icarus25.png").convert_alpha()
-icarus_corner = pygame.transform.scale_by(icarus_corner, 0.2)  # pas schaal aan indien nodig
+icarus_corner = pygame.image.load("Sprites/Icarus_logo.png").convert_alpha()
+icarus_corner = pygame.transform.scale_by(icarus_corner, 3)  # pas schaal aan indien nodig
 icarus_corner_rect = icarus_corner.get_rect(
     topleft=(10, 10)
 )
@@ -676,11 +676,15 @@ def draw_game_over():
     # Score
     if game_over_timer > 1.5:
         score_surf = end_score_font.render(f"Score: {int(score)}", True, fontColor)
+        score_surf2 = end_score_font.render(f"Score: {int(score)}", True, (0,0,0))
+        screen.blit(score_surf2, (center_x - score_surf.get_width() // 2 + 2, 262))
         screen.blit(score_surf, (center_x - score_surf.get_width() // 2, 260))
 
     # Record
     if game_over_timer > 2.0:
         record_surf = end_score_font.render(f"Record: {record}", True, fontColor)
+        record_surf2 = end_score_font.render(f"Record: {record}", True, (0,0,0))
+        screen.blit(record_surf2, (center_x - record_surf.get_width() // 2 + 2, 302))
         screen.blit(record_surf, (center_x - record_surf.get_width() // 2, 300))
 
     # Knipperende instructie
@@ -691,6 +695,12 @@ def draw_game_over():
                 True,
                 (196,190,19)
             )
+            info2 = font.render(
+                "Press SPACE to Retry or ESC to Exit",
+                True,
+                (0,0,0)
+            )
+            screen.blit(info2, (center_x - info.get_width() // 2 + 2, 360))
             screen.blit(info, (center_x - info.get_width() // 2, 360))
 
 
